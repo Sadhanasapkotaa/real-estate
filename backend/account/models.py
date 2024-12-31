@@ -4,9 +4,6 @@ from django.db.models import Max
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from enum import Enum
-import logging
-
-logger = logging.getLogger(__name__)
 
 class RolePrefix(Enum):
     AGENT = 'A-'
@@ -16,42 +13,43 @@ class RolePrefix(Enum):
     LAWYER = 'L-'
     MANAGER = 'M-'
     SUPPLIER = 'SP-'
+    MULTIPLE = 'MUL-'
 
     @classmethod
-    def get_prefix(cls, role):
-        """Returns the prefix for the role."""
-        return cls[role.upper()].value if role.upper() in cls.__members__ else 'U-'
-
+    def get_prefix(cls, roles):
+        """Returns the prefix for the roles."""
+        if len(roles) > 1:
+            return cls.MULTIPLE.value
+        return cls[roles[0].upper()].value if roles[0].upper() in cls.__members__ else 'U-'
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name, role, password=None):
-        if role not in dict(User.ROLE_CHOICES):
-            raise ValueError("Invalid role")
+    def create_user(self, email, name, roles, password=None):
+        if not roles:
+            raise ValueError("Users must have at least one role")
         
         user = self.model(
             email=self.normalize_email(email),
             name=name,
-            role=role,
         )
         user.set_password(password)
         user.save(using=self._db)
+        user.roles.set(roles)
         return user
 
-    def create_superuser(self, email, name, role='admin', password=None):
+    def create_superuser(self, email, name, roles=['admin'], password=None):
         if not email:
             raise ValueError("Superusers must have an email address")
         
         user = self.create_user(
             email=email,
             name=name,
-            role=role,
+            roles=roles,
             password=password,
         )
         user.is_admin = True
         user.is_superuser = True
         user.save(using=self._db)
         return user
-
 
 class User(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
@@ -67,7 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     user_id = models.CharField(max_length=10, unique=True, editable=False)
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='buyer')
+    roles = models.ManyToManyField('Role', related_name='users')
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -76,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'role']
+    REQUIRED_FIELDS = ['name']
 
     def __str__(self):
         return self.email
@@ -89,8 +87,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.is_admin
 
     def generate_user_id(self):
-        prefix = RolePrefix.get_prefix(self.role)
-        latest_user = User.objects.filter(role=self.role).aggregate(Max('user_id'))
+        roles = self.roles.values_list('name', flat=True)
+        prefix = RolePrefix.get_prefix(roles)
+        latest_user = User.objects.filter(roles__name__in=roles).aggregate(Max('user_id'))
         latest_id = latest_user['user_id__max']
 
         if latest_id:
@@ -101,12 +100,28 @@ class User(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if not self.user_id:
             self.user_id = self.generate_user_id()
+        else:
+            roles = self.roles.values_list('name', flat=True)
+            if len(roles) > 1 and not self.user_id.startswith(RolePrefix.MULTIPLE.value):
+                self.user_id = f"{RolePrefix.MULTIPLE.value}{self.user_id.split('-')[1]}"
+            elif len(roles) == 1 and self.user_id.startswith(RolePrefix.MULTIPLE.value):
+                prefix = RolePrefix.get_prefix(roles)
+                self.user_id = f"{prefix}{self.user_id.split('-')[1]}"
         super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'user'
         verbose_name_plural = 'users'
 
+class Role(models.Model):
+    name = models.CharField(max_length=20, choices=User.ROLE_CHOICES, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'role'
+        verbose_name_plural = 'roles'
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -121,7 +136,6 @@ class Profile(models.Model):
         verbose_name = 'profile'
         verbose_name_plural = 'profiles'
 
-
 class KYC(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='kyc')
     document_id = models.CharField(max_length=50, blank=True, null=True)
@@ -134,64 +148,39 @@ class KYC(models.Model):
         verbose_name = 'KYC'
         verbose_name_plural = 'KYC'
 
-
+# ROLE-SPECIFIC MODELS
 class ManagerModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='manager_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     department = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta:
-        verbose_name = 'manager'
-        verbose_name_plural = 'managers'
-
-
 class BuyerModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     purchase_history = models.TextField(blank=True, null=True)
 
-    class Meta:
-        verbose_name = 'buyer'
-        verbose_name_plural = 'buyers'
-
-
 class SellerModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seller_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     store_name = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta:
-        verbose_name = 'seller'
-        verbose_name_plural = 'sellers'
 
 class OwnerModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='owner_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     business_name = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'owner'
-        verbose_name_plural = 'owners'
 
 
 class LawyerModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='lawyer_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     bar_id = models.CharField(max_length=50, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'lawyer'
-        verbose_name_plural = 'lawyers'
 
 
 class AgentModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='agent_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     bar_id = models.CharField(max_length=50, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'agent'
-        verbose_name_plural = 'agents'
 
 
 class SupplierModel(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='supplier_profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     business_name = models.CharField(max_length=255, blank=True, null=True)
-
+    
     class SupplyType(models.TextChoices):
         GOODS = 'goods', 'Goods'
         SERVICES = 'services', 'Services'
@@ -203,22 +192,24 @@ class SupplierModel(models.Model):
         default=SupplyType.GOODS,
     )
 
-    class Meta:
-        verbose_name = 'supplier'
-        verbose_name_plural = 'suppliers'
-
-
 @receiver(post_save, sender=User)
 def create_related_models(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
         KYC.objects.create(user=instance)
-
-        try:
-            model_class = globals().get(f"{instance.role.capitalize()}Model")
-            if model_class:
-                model_class.objects.create(user=instance)
-            else:
-                logger.warning(f"No model class found for role: {instance.role}")
-        except Exception as e:
-            logger.error(f"An error occurred while creating related models: {e}")
+        roles = instance.roles.values_list('name', flat=True)
+        for role in roles:
+            if role == 'buyer':
+                BuyerModel.objects.create(user=instance)
+            elif role == 'seller':
+                SellerModel.objects.create(user=instance)
+            elif role == 'owner':
+                OwnerModel.objects.create(user=instance)
+            elif role == 'lawyer':
+                LawyerModel.objects.create(user=instance)
+            elif role == 'agent':
+                AgentModel.objects.create(user=instance)
+            elif role == 'manager':
+                ManagerModel.objects.create(user=instance)
+            elif role == 'supplier':
+                SupplierModel.objects.create(user=instance)

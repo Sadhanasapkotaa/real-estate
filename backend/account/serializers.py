@@ -1,18 +1,34 @@
 from rest_framework import serializers
 from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer
 from account.models import (
-    User, Profile, KYC, ManagerModel, BuyerModel, SellerModel, OwnerModel, LawyerModel, AgentModel, SupplierModel
+    User, Profile, KYC, ManagerModel, BuyerModel, SellerModel, OwnerModel, LawyerModel, AgentModel, SupplierModel, Role
 )
 
 class UserCreateSerializer(BaseUserCreateSerializer):
+    roles = serializers.ListField(
+        child=serializers.CharField(max_length=20)
+    )
+
     class Meta(BaseUserCreateSerializer.Meta):
         model = User
-        fields = ('id', 'email', 'name', 'password', 'role')
+        fields = ('id', 'email', 'name', 'password', 'roles')
+
+    def create(self, validated_data):
+        roles_data = validated_data.pop('roles')
+        user = User.objects.create(**validated_data)
+        roles = Role.objects.filter(name__in=roles_data)
+        user.roles.set(roles)
+        return user
 
 class UserSerializer(serializers.ModelSerializer):
+    roles = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'name', 'role', 'is_active', 'is_admin', 'created_at', 'updated_at')
+        fields = ('id', 'email', 'name', 'roles', 'is_active', 'is_admin', 'created_at', 'updated_at')
+
+    def get_roles(self, obj):
+        return obj.roles.values_list('name', flat=True)
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:

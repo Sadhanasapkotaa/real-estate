@@ -6,22 +6,22 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # Customizing the user model admin
 class UserModelAdmin(BaseUserAdmin):
-    list_display = ['id', 'email', 'name', 'role', 'is_active', 'is_admin']
+    list_display = ['id', 'email', 'name', 'is_active', 'is_admin']
     search_fields = ['email', 'name']
     ordering = ['email']
-    list_filter = ['is_admin', 'is_active', 'role']
-    filter_horizontal = ()
+    list_filter = ['is_admin', 'is_active', 'roles']
+    filter_horizontal = ('roles',)
 
     fieldsets = (
         ('User Credentials', {'fields': ('email', 'password')}),
-        ('Personal Information', {'fields': ('name', 'role')}),
+        ('Personal Information', {'fields': ('name', 'roles')}),
         ('Permissions', {'fields': ('is_active', 'is_admin')}),
     )
 
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'name', 'role', 'password1', 'password2'),
+            'fields': ('email', 'name', 'roles', 'password1', 'password2'),
         }),
     )
 
