@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Carousel = () => {
   // Dummy images for the carousel
@@ -13,6 +13,7 @@ const Carousel = () => {
 
   // State to manage the current active image
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   // Move to the previous image
   const goLeft = () => {
@@ -33,10 +34,27 @@ const Carousel = () => {
     setCurrentIndex(index);
   };
 
+  // Automatically change images every 5 seconds
+  useEffect(() => {
+    if (!isHovered) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prevIndex) =>
+          prevIndex === images.length - 1 ? 0 : prevIndex + 1
+        );
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [isHovered, images.length]);
+
   return (
-    <div className="relative flex flex-col items-center m-20">
+    <div className="relative flex flex-col items-center mx-20">
       {/* Carousel Container */}
-      <div className="w-full h-96 relative overflow-hidden rounded-lg shadow-lg">
+      <div
+        className="w-full h-96 relative overflow-hidden shadow-lg"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
         {/* Images */}
         <img
           src={images[currentIndex]}
@@ -74,10 +92,8 @@ const Carousel = () => {
           />
         ))}
       </div>
-
-
     </div>
   );
 };
 
-export default Carousel;;
+export default Carousel;

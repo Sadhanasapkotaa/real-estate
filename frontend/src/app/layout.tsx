@@ -18,9 +18,9 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
       </head>
-      <body>
+      <body className="bg-gray-100 text-gray-900">
         <Header />
-        <main>{children}</main>
+        <main className="min-h-screen flex flex-col">{children}</main>
         <Footer />
       </body>
     </html>

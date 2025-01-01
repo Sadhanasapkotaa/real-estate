@@ -9,7 +9,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white shadow-md sticky top-0 w-full z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-10 sm:px-6 lg:px-10 lg:mx-10">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold text-blue-700">
@@ -17,11 +17,20 @@ export default function Navbar() {
           </Link>
           {/* Links for larger screens */}
           <div className="hidden md:flex space-x-8 items-center">
-            <Link href="/properties" className="text-blue-600 hover:text-blue-800">
+            <Link href="/listings" className="text-blue-600 hover:text-blue-800">
               Properties
             </Link>
-            <Link href="/about" className="text-blue-600 hover:text-blue-800">
-              About Us
+            <Link href="/login" className="text-blue-600 hover:text-blue-800">
+              Buy/Lease
+            </Link>
+            <Link href="/owner/login" className="text-blue-600 hover:text-blue-800">
+            Sell/Rent
+            </Link>
+            <Link href="/services/login" className="text-blue-600 hover:text-blue-800">
+              Services
+            </Link>
+            <Link href="/supplier/login" className="text-blue-600 hover:text-blue-800">
+              Supplies
             </Link>
             <Link href="/contact" className="text-blue-600 hover:text-blue-800">
               Contact

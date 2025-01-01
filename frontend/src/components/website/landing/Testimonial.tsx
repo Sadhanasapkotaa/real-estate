@@ -9,7 +9,7 @@ const testimonialsData = [
         "text": "Our entire team loved the offices",
         "date": "7 days ago",
         "rating": 5,
-        "image": "path/to/sarah.jpg"
+        "image": "/images/sarah.jpg"  // Ensure correct image path
     },
     {
         "id": 2,
@@ -18,7 +18,7 @@ const testimonialsData = [
         "text": "Great prices and excellent service",
         "date": "7 days ago",
         "rating": 5,
-        "image": "path/to/peter.jpg"
+        "image": "/images/peter.jpg"  // Ensure correct image path
     },
     {
         "id": 3,
@@ -27,9 +27,9 @@ const testimonialsData = [
         "text": "Excellent selection of office spaces available",
         "date": "7 days ago",
         "rating": 5,
-        "image": "path/to/john.jpg"
+        "image": "/images/john.jpg"  // Ensure correct image path
     }
-]
+];
 
 const Testimonial: React.FC = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,27 +43,30 @@ const Testimonial: React.FC = () => {
     }, []);
 
     return (
-        <div className="testimonial-section">
-            <h2>What Clients Say</h2>
-            <div className="testimonial-header">
-                <h3>We're trusted by the most important teams</h3>
-                <p>10k+ Customers • 99% Satisfaction</p>
+        <div className="testimonial-section bg-blue-700 py-16 px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl font-semibold text-gray-800">What Clients Say</h2>
+                <div className="mt-4">
+                    <h3 className="text-xl font-medium text-gray-600">We're trusted by the most important teams</h3>
+                    <p className="mt-2 text-sm text-gray-500">10k+ Customers • 99% Satisfaction</p>
+                </div>
             </div>
-            <div className="testimonial-container">
-                {testimonialsData.map((testimonial, index) => (
-                    <div
-                        key={testimonial.id}
-                        className={`testimonial ${index === currentIndex ? 'active' : ''}`}
-                    >
-                        <img src={testimonial.image} alt={testimonial.name} className="testimonial-image" />
-                        <p className="testimonial-text">“{testimonial.text}”</p>
-                        <p className="testimonial-name">{testimonial.name}, {testimonial.company}</p>
-                        <p className="testimonial-date">{testimonial.date}</p>
-                        <div className="testimonial-rating">
-                            {'★'.repeat(testimonial.rating)}{'☆'.repeat(5 - testimonial.rating)}
-                        </div>
+            <div className="testimonial-container mx-auto max-w-3xl bg-white rounded-lg shadow-lg p-6">
+                <div className="testimonial flex flex-col items-center text-center space-y-6">
+                    <img
+                        src={testimonialsData[currentIndex].image}
+                        alt={testimonialsData[currentIndex].name}
+                        className="testimonial-image w-24 h-24 rounded-full object-cover border-4 border-indigo-500"
+                    />
+                    <p className="testimonial-text text-lg font-medium text-gray-700">“{testimonialsData[currentIndex].text}”</p>
+                    <p className="testimonial-name text-xl font-semibold text-gray-800">
+                        {testimonialsData[currentIndex].name}, {testimonialsData[currentIndex].company}
+                    </p>
+                    <p className="testimonial-date text-sm text-gray-500">{testimonialsData[currentIndex].date}</p>
+                    <div className="testimonial-rating text-yellow-500">
+                        {'★'.repeat(testimonialsData[currentIndex].rating)}{'☆'.repeat(5 - testimonialsData[currentIndex].rating)}
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     );
