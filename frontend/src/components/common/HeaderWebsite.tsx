@@ -32,6 +32,9 @@ export default function Navbar() {
             <Link href="/supplier/login" className="text-blue-600 hover:text-blue-800">
               Supplies
             </Link>
+            <Link href="/blogs" className="text-blue-600 hover:text-blue-800">
+              Blogs
+            </Link>
             <Link href="/contact" className="text-blue-600 hover:text-blue-800">
               Contact
             </Link>
