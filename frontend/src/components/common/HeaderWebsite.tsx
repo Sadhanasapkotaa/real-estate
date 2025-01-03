@@ -17,19 +17,16 @@ export default function Navbar() {
           </Link>
           {/* Links for larger screens */}
           <div className="hidden md:flex space-x-8 items-center">
-            <Link href="/listings" className="text-blue-600 hover:text-blue-800">
+            <Link href="/properties" className="text-blue-600 hover:text-blue-800">
               Properties
             </Link>
-            <Link href="/login" className="text-blue-600 hover:text-blue-800">
-              Buy/Lease
+            <Link href="/add-property" className="text-blue-600 hover:text-blue-800">
+            Add Property
             </Link>
-            <Link href="/owner/login" className="text-blue-600 hover:text-blue-800">
-            Sell/Rent
-            </Link>
-            <Link href="/services/login" className="text-blue-600 hover:text-blue-800">
+            <Link href="/services" className="text-blue-600 hover:text-blue-800">
               Services
             </Link>
-            <Link href="/supplier/login" className="text-blue-600 hover:text-blue-800">
+            <Link href="/supplies" className="text-blue-600 hover:text-blue-800">
               Supplies
             </Link>
             <Link href="/blogs" className="text-blue-600 hover:text-blue-800">
@@ -41,8 +38,14 @@ export default function Navbar() {
           </div>
           {/* Sign In Button */}
           <div className="hidden md:flex items-center">
-            <Link href="/signin">
+            <Link href="/add-property">
               <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Add Property
+              </button>
+            </Link>
+
+            <Link href="/signin">
+              <button className="bg-white text-blue-700 px-4 mx-3 py-2 rounded hover:text-blue-700 hover:bg-gray-200">
                 Sign In
               </button>
             </Link>
