@@ -1,0 +1,235 @@
+# Backend: Django REST Framework with Channels
+
+## Install dependencies
+```bash
+pip install django djangorestframework djangorestframework-simplejwt channels channels-redis daphne
+```
+
+## settings.py
+```python
+INSTALLED_APPS = [
+    'daphne',
+    'channels',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'chat',  # New app for chat features
+]
+
+ASGI_APPLICATION = 'project.asgi.application'
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+```
+
+## asgi.py
+```python
+import os
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+from chat.routing import websocket_urlpatterns
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
+
+application = ProtocolTypeRouter({
+    'http': get_asgi_application(),
+    'websocket': AuthMiddlewareStack(
+        URLRouter(
+            websocket_urlpatterns
+        )
+    ),
+})
+```
+
+## chat/models.py
+```python
+from django.db import models
+from django.conf import settings
+
+class Room(models.Model):
+    name = models.CharField(max_length=255)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='rooms')
+
+class Message(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+class Call(models.Model):
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    call_type = models.CharField(max_length=10, choices=[('audio', 'Audio'), ('video', 'Video')])
+    recorded_file = models.FileField(upload_to='recordings/', null=True, blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+class Reaction(models.Model):
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reactions')
+    emoji = models.CharField(max_length=10)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+```
+
+## chat/consumers.py
+```python
+import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f'chat_{self.room_name}'
+
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        message = data['message']
+        username = data['username']
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+                'username': username,
+            }
+        )
+
+    async def chat_message(self, event):
+        message = event['message']
+        username = event['username']
+
+        await self.send(text_data=json.dumps({
+            'message': message,
+            'username': username,
+        }))
+```
+
+## chat/routing.py
+```python
+from django.urls import path
+from . import consumers
+
+websocket_urlpatterns = [
+    path('ws/chat/<str:room_name>/', consumers.ChatConsumer.as_asgi()),
+]
+```
+
+## chat/views.py
+```python
+from rest_framework import viewsets, permissions
+from .models import Room, Message
+from .serializers import RoomSerializer, MessageSerializer
+
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class MessageViewSet(viewsets.ModelViewSet):
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+```
+
+## chat/serializers.py
+```python
+from rest_framework import serializers
+from .models import Room, Message
+
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = '__all__'
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = '__all__'
+```
+
+---
+
+# Frontend: Next.js
+
+## Install Dependencies
+```bash
+npx create-next-app@latest chat-frontend
+cd chat-frontend
+npm install socket.io-client
+```
+
+## Create WebSocket Client
+`utils/socket.js`
+```javascript
+import { io } from 'socket.io-client';
+const socket = io('ws://localhost:8000');
+export default socket;
+```
+
+## Chat Component
+`components/Chat.js`
+```javascript
+import React, { useState, useEffect } from 'react';
+import socket from '../utils/socket';
+
+const Chat = () => {
+    const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState([]);
+
+    useEffect(() => {
+        socket.on('message', (data) => {
+            setMessages((prev) => [...prev, data]);
+        });
+
+        return () => socket.off('message');
+    }, []);
+
+    const sendMessage = () => {
+        socket.emit('message', { text: message });
+        setMessage('');
+    };
+
+    return (
+        <div>
+            <div>
+                {messages.map((msg, index) => (
+                    <p key={index}>{msg.text}</p>
+                ))}
+            </div>
+            <input
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+            />
+            <button onClick={sendMessage}>Send</button>
+        </div>
+    );
+};
+
+export default Chat;
+```
+
+---
+This setup provides a basic chat and room system, ready for integrating Jitsi APIs for audio/video calls, screen sharing, and other features.
