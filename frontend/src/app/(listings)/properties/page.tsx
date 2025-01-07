@@ -29,7 +29,11 @@ const PropertyList = () => {
             <h2>{property.title}</h2>
             <p>{property.description}</p>
             <p>Price: ${property.price}</p>
-            <p>Location: {property.location}</p>
+            <p>🛏️ Bedrooms: {property.bedrooms}</p>
+            <p>🛁 Bathrooms: {property.bathrooms}</p>
+            <p>🏠 Type: {property.type}</p>
+            <p>🔖 For: {property.saleOrRent}</p>
+            <p>📍 Location: {property.location}</p>
             <Link href={`/properties/${property.id}`} className="text-blue-500">
               See More
             </Link>
