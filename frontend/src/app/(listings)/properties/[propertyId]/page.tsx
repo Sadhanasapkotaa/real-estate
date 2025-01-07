@@ -1,6 +1,8 @@
 "use client";
 import { useRouter, useParams } from 'next/navigation';
 import properties from '../data';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Page() {
   const params = useParams();
@@ -11,6 +13,11 @@ export default function Page() {
     router.push('/404');
     return null;
   }
+
+  const handleBookNow = () => {
+    // Add logic for booking the property
+    toast.success('Booking functionality not implemented yet.');
+  };
 
   return (
     <div key={property.id} className="max-w-4xl mx-auto p-4">
@@ -23,6 +30,8 @@ export default function Page() {
       <p className="text-gray-600 mb-2">🛁 Bathrooms: {property.bathrooms}</p>
       <p className="text-gray-600 mb-2">🏠 Type: {property.type}</p>
       <p className="text-gray-600 mb-4">🔖 For: {property.saleOrRent}</p>
+      <button onClick={handleBookNow} className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-700">Book Now</button>
+      <ToastContainer />
     </div>
   );
 }
