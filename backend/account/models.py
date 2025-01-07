@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.db.models import Max
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from enum import Enum
@@ -32,20 +31,25 @@ class UserManager(BaseUserManager):
             name=name,
         )
         user.set_password(password)
-        user.save(using=self._db)
-        user.roles.set(roles)
+        user.save(using=self._db)  # Save the user first to get an id
+        user.roles.set(roles)  # Now you can safely set the roles
         return user
 
     def create_superuser(self, email, name, roles=['admin'], password=None):
         if not email:
             raise ValueError("Superusers must have an email address")
         
-        user = self.create_user(
-            email=email,
+        user = self.model(
+            email=self.normalize_email(email),
             name=name,
-            roles=roles,
-            password=password,
         )
+        user.set_password(password)
+        user.save(using=self._db)  # Save the user first to get an id
+
+        # Fetch Role instances based on role names
+        role_instances = Role.objects.filter(name__in=roles)
+        user.roles.set(role_instances)  # Now you can safely set the roles
+
         user.is_admin = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -62,7 +66,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('supplier', 'Supplier'),
     ]
 
-    user_id = models.CharField(max_length=10, unique=True, editable=False)
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     roles = models.ManyToManyField('Role', related_name='users')
@@ -85,29 +88,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
-
-    def generate_user_id(self):
-        roles = self.roles.values_list('name', flat=True)
-        prefix = RolePrefix.get_prefix(roles)
-        latest_user = User.objects.filter(roles__name__in=roles).aggregate(Max('user_id'))
-        latest_id = latest_user['user_id__max']
-
-        if latest_id:
-            latest_number = int(latest_id.split('-')[1])
-            return f"{prefix}{latest_number + 1:03d}"
-        return f"{prefix}001"
-
-    def save(self, *args, **kwargs):
-        if not self.user_id:
-            self.user_id = self.generate_user_id()
-        else:
-            roles = self.roles.values_list('name', flat=True)
-            if len(roles) > 1 and not self.user_id.startswith(RolePrefix.MULTIPLE.value):
-                self.user_id = f"{RolePrefix.MULTIPLE.value}{self.user_id.split('-')[1]}"
-            elif len(roles) == 1 and self.user_id.startswith(RolePrefix.MULTIPLE.value):
-                prefix = RolePrefix.get_prefix(roles)
-                self.user_id = f"{prefix}{self.user_id.split('-')[1]}"
-        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'user'
@@ -161,21 +141,17 @@ class SellerModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     store_name = models.CharField(max_length=255, blank=True, null=True)
 
-
 class OwnerModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     business_name = models.CharField(max_length=255, blank=True, null=True)
-
 
 class LawyerModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bar_id = models.CharField(max_length=50, blank=True, null=True)
 
-
 class AgentModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bar_id = models.CharField(max_length=50, blank=True, null=True)
-
 
 class SupplierModel(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -195,8 +171,11 @@ class SupplierModel(models.Model):
 @receiver(post_save, sender=User)
 def create_related_models(sender, instance, created, **kwargs):
     if created:
+        # Create related models
         Profile.objects.create(user=instance)
         KYC.objects.create(user=instance)
+
+        # Create role-specific models based on roles
         roles = instance.roles.values_list('name', flat=True)
         for role in roles:
             if role == 'buyer':

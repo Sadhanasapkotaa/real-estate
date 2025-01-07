@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Call</title>
+</head>
+<body>
+    <h1>Video Call Room: {{ room_name }}</h1>
+    <div id="video-call-container">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+    <script>
+        const roomName = "{{ room_name }}";
+        const wsUrl = `ws://${window.location.host}/ws/video_call/${roomName}/`;
+        const videoCallSocket = new WebSocket(wsUrl);
+
+        let localStream;
+        let remoteStream;
+        let peerConnection;
+        const configuration = {
+            'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]
+        };
+
+        videoCallSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+            if (data.type === 'video_call') {
+                alert(data.message);
+            } else if (data.type === 'offer') {
+                handleOffer(data.offer);
+            } else if (data.type === 'answer') {
+                handleAnswer(data.answer);
+            } else if (data.type === 'candidate') {
+                handleCandidate(data.candidate);
+            }
+        };
+
+        videoCallSocket.onclose = function(e) {
+            console.error('Video call socket closed unexpectedly');
+        };
+
+        async function startVideoCall() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+
+            peerConnection = new RTCPeerConnection(configuration);
+            peerConnection.addStream(localStream);
+
+            peerConnection.onaddstream = function(event) {
+                remoteStream = event.stream;
+                document.getElementById('remoteVideo').srcObject = remoteStream;
+            };
+
+            peerConnection.onicecandidate = function(event) {
+                if (event.candidate) {
+                    videoCallSocket.send(JSON.stringify({
+                        'type': 'candidate',
+                        'candidate': event.candidate
+                    }));
+                }
+            };
+
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+
+            videoCallSocket.send(JSON.stringify({
+                'type': 'offer',
+                'offer': offer
+            }));
+        }
+
+        function handleOffer(offer) {
+            peerConnection = new RTCPeerConnection(configuration);
+            peerConnection.addStream(localStream);
+
+            peerConnection.onaddstream = function(event) {
+                remoteStream = event.stream;
+                document.getElementById('remoteVideo').srcObject = remoteStream;
+            };
+
+            peerConnection.onicecandidate = function(event) {
+                if (event.candidate) {
+                    videoCallSocket.send(JSON.stringify({
+                        'type': 'candidate',
+                        'candidate': event.candidate
+                    }));
+                }
+            };
+
+            peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            peerConnection.createAnswer().then(answer => {
+                peerConnection.setLocalDescription(answer);
+                videoCallSocket.send(JSON.stringify({
+                    'type': 'answer',
+                    'answer': answer
+                }));
+            });
+        }
+
+        function handleAnswer(answer) {
+            peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+        }
+
+        function handleCandidate(candidate) {
+            peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+        }
+
+        // Call this function to start a video call
+        startVideoCall();
+    </script>
+</body>
+</html>
