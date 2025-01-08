@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # Ensure this is at the top
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -146,7 +147,7 @@ EMAIL_USE_TLS = True
 # REST Framework settings
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -212,10 +213,34 @@ DJOSER = {
 }
 
 # CORS settings to allow connections from the frontend
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Remove the specific origins if CORS_ALLOW_ALL_ORIGINS is set to True
+# CORS_ALLOWED_ORIGINS = [
+#     "https://opulent-memory-5pgwv57r9wwf7xg5-3000.app.github.dev",
+#     "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev",
+# ]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'PATCH',
 ]
 
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
+    'accept',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+# Allow all cors 
+# CORS_ALLOW_ALL_ORIGINS = True;
+
 # settings.py
-CSP_CONNECT_SRC = ("'self'", "ws://127.0.0.1:8000", "ws://localhost:8000")# Add the WebSocket URL here
+# CSP_CONNECT_SRC = ("'self'", "ws://127.0.0.1:8000", "ws://localhost:8000")# Add the WebSocket URL here

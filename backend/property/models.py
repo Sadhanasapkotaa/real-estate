@@ -34,6 +34,12 @@ class PropertyImage(models.Model):
     property = models.ForeignKey(Property, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='property_images/')
 
-
     def __str__(self):
         return f"Image for {self.property.title}"
+
+class PropertyVideo(models.Model):
+    property = models.ForeignKey(Property, related_name='videos', on_delete=models.CASCADE)
+    video = models.FileField(upload_to='property_videos/')
+
+    def __str__(self):
+        return f"Video for {self.property.title}"
