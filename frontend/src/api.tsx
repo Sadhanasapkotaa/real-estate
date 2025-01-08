@@ -26,9 +26,12 @@ export const fetchData = async (endpoint: string) => {
       console.error('Error response:', error.response.data);
       console.error('Error status:', error.response.status);
       console.error('Error headers:', error.response.headers);
-    } else if (error.request) {
+    } else if (error.request && Object.keys(error.request).length) {
       // The request was made but no response was received
       console.error('Error request:', error.request);
+    } else if (error.message === 'Network Error') {
+      // Handle network error specifically
+      console.error('Network Error: Please check your internet connection.');
     } else {
       // Something happened in setting up the request that triggered an Error
       console.error('Error message:', error.message);
@@ -36,4 +39,8 @@ export const fetchData = async (endpoint: string) => {
     console.error('Error config:', error.config);
     throw error;
   }
+};
+
+export const fetchPropertyById = async (id: string) => {
+  return fetchData(`properties/${id}`);
 };

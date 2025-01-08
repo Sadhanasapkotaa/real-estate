@@ -216,10 +216,10 @@ DJOSER = {
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Remove the specific origins if CORS_ALLOW_ALL_ORIGINS is set to True
-# CORS_ALLOWED_ORIGINS = [
-#     "https://opulent-memory-5pgwv57r9wwf7xg5-3000.app.github.dev",
-#     "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "https://opulent-memory-5pgwv57r9wwf7xg5-3000.app.github.dev",
+    "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev",
+]
 
 CORS_ALLOW_METHODS = [
     'GET',
