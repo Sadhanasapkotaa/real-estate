@@ -1,5 +1,16 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { addProperty } from '../../../api'; // Correct the import path
+
+const PROPERTY_TYPES = [
+  { value: 'land', label: 'Land' },
+  { value: 'house', label: 'House' },
+  { value: 'office', label: 'Office' },
+  { value: 'shop', label: 'Shop' },
+  { value: 'godown', label: 'Godown' },
+  { value: 'villa', label: 'Villa' },
+  { value: 'loft', label: 'Loft' },
+];
 
 const AddProperty = () => {
   const [property, setProperty] = useState({
@@ -15,23 +26,17 @@ const AddProperty = () => {
   });
 
   useEffect(() => {
-    const loadScript = (url) => {
-      const script = document.createElement('script');
-      script.src = url;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    };
-
-    loadScript(`https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initMap`);
-    window.initMap = initMap;
+    console.log("Component mounted");
+    // Remove the Google Maps script loading logic
   }, []);
 
   const initMap = () => {
+    console.log("Initializing map");
     const input = document.getElementById('location');
     const autocomplete = new window.google.maps.places.Autocomplete(input);
     autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
+      console.log("Place selected:", place);
       setProperty({
         ...property,
         location: place.formatted_address
@@ -41,6 +46,7 @@ const AddProperty = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Changing ${name} to ${value}`);
     setProperty({
       ...property,
       [name]: value
@@ -49,16 +55,23 @@ const AddProperty = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+    console.log("Images selected:", files);
     setProperty({
       ...property,
       images: files
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(property);
-    // Add logic to save the property
+    console.log("Form submitted with property:", property);
+    try {
+      const response = await addProperty(property);
+      console.log("Property added successfully:", response);
+      // Optionally, redirect or show a success message
+    } catch (error) {
+      console.error("Error adding property:", error);
+    }
   };
 
   return (
@@ -71,7 +84,12 @@ const AddProperty = () => {
         <input type="text" id="location" name="location" placeholder="Location" value={property.location} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
         <input type="number" name="bedrooms" placeholder="Bedrooms" value={property.bedrooms} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
         <input type="number" name="bathrooms" placeholder="Bathrooms" value={property.bathrooms} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-        <input type="text" name="type" placeholder="Type" value={property.type} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+        <select name="type" value={property.type} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
+          <option value="" disabled>Select Property Type</option>
+          {PROPERTY_TYPES.map((type) => (
+            <option key={type.value} value={type.value}>{type.label}</option>
+          ))}
+        </select>
         <div className="flex items-center space-x-4">
           <label className="flex items-center">
             <input type="radio" name="saleOrRent" value="sale" checked={property.saleOrRent === 'sale'} onChange={handleChange} className="mr-2" />

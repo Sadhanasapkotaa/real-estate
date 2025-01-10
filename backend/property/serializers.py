@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Property, PropertyImage, PropertyVideo
+from .models import Property, PropertyImage, PropertyVideo, Booking
 
 class PropertyImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,3 +36,11 @@ class PropertySerializer(serializers.ModelSerializer):
         for video in uploaded_videos:
             PropertyVideo.objects.create(property=property_instance, video=video)
         return property_instance
+
+class BookingSerializer(serializers.ModelSerializer):
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+
+    class Meta:
+        model = Booking
+        fields = '__all__'

@@ -23,7 +23,12 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     # Inclusion of the property app's URLs
+    path("api/", include("account.urls")),
     path("api/", include("property.urls")),
+    path("api/", include("blog.urls")),
+    path("api/", include("chatapp.urls")),
+    path("api/", include("payment.urls")),
+
 
 ]
 

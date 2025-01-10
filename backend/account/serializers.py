@@ -14,11 +14,18 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         fields = ('id', 'email', 'name', 'password', 'roles')
 
     def create(self, validated_data):
-        roles_data = validated_data.pop('roles')
-        user = User.objects.create(**validated_data)
+        roles_data = validated_data.pop('roles', [])
+        user = User.objects.create(is_active=False, **validated_data)
+        if not roles_data:
+            roles_data = ['buyer', 'owner']  # Default roles if none are provided or if the list is empty
         roles = Role.objects.filter(name__in=roles_data)
         user.roles.set(roles)
         return user
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['roles'] = instance.roles.values_list('name', flat=True)
+        return representation
 
 class UserSerializer(serializers.ModelSerializer):
     roles = serializers.SerializerMethodField()

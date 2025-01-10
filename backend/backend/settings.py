@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "account",
     "chatapp",
     "property",
+    "blog",  
+    "payment",
 ]
 
 MIDDLEWARE = [
@@ -197,7 +199,8 @@ AUTH_USER_MODEL = "account.User"  # Assuming you have a custom user model in the
 DJOSER = {
     "LOGIN_FIELD": "email",
     "USER_CREATE_PASSWORD_RETYPE": True,
-    "ACTIVATION_URL": "activate/{uid}/{token}",
+    'ACTIVATION_URL': 'api/auth/activate/{uid}/{token}',  # This should match your frontend route
+    'ACTIVATION_VIEW': 'djoser.views.UserActivationView',  # Ensure this view is used for activation
     "SEND_ACTIVATION_EMAIL": True,
     "SEND_CONFIRMATION_EMAIL": True,
     "PASSWORD_CHANGED_EMAIL_CONFIRMATION": True,
@@ -210,6 +213,8 @@ DJOSER = {
         "user": "account.serializers.UserCreateSerializer",
         "user_delete": "djoser.serializers.UserDeleteSerializer",
     },
+
+
 }
 
 # CORS settings to allow connections from the frontend
@@ -237,7 +242,6 @@ CORS_ALLOW_HEADERS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-
 
 # Allow all cors 
 # CORS_ALLOW_ALL_ORIGINS = True;

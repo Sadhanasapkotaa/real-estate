@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { fetchPropertyById } from '@/api';
+import { fetchPropertyById, bookProperty } from '@/api';
 
 export default function Page() {
   const params = useParams();
@@ -24,6 +24,9 @@ export default function Page() {
 
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -56,10 +59,31 @@ export default function Page() {
     return null;
   }
 
-  const handleBookNow = () => {
-    // Add logic for booking the property
-    toast.success('Booking functionality not implemented yet.');
+  const handleBookNow = async () => {
+    try {
+      if (!startDate || !endDate) {
+        toast.error('Please select start and end dates.');
+        return;
+      }
+      const token = localStorage.getItem('authToken'); // Retrieve the authentication token from local storage
+      if (!token) {
+        toast.error('You must be logged in to book a property.');
+        return;
+      }
+      const propertyId = Array.isArray(params.propertyId) ? params.propertyId[0] : params.propertyId;
+      if (propertyId) {
+        await bookProperty(propertyId, { startDate, endDate });
+      } else {
+        toast.error('Property ID is missing.');
+      }
+      toast.success('Property booked successfully.');
+      setShowModal(true);
+    } catch {
+      toast.error('Error booking property.');
+    }
   };
+
+  const handleCloseModal = () => setShowModal(false);
 
   return (
     <>
@@ -74,8 +98,28 @@ export default function Page() {
       <p className="text-gray-600 mb-2">🛁 Bathrooms: {property.bathrooms}</p>
       <p className="text-gray-600 mb-2">🏠 Type: {property.type}</p>
       <p className="text-gray-600 mb-4">🔖 For: {property.sale_or_rent}</p>
+      <div className="mb-4">
+        <label className="block text-gray-700">Start Date:</label>
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full p-2 border rounded" />
+      </div>
+      <div className="mb-4">
+        <label className="block text-gray-700">End Date:</label>
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full p-2 border rounded" />
+      </div>
       <button onClick={handleBookNow} className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-700">Book Now</button>
       <ToastContainer />
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Booking Successful</h2>
+            <p className="mb-4">Your booking was successful. Would you like to pay now or pay later?</p>
+            <div className="flex justify-end">
+              <button onClick={handleCloseModal} className="p-2 bg-gray-500 text-white rounded hover:bg-gray-700 mr-2">Pay Later</button>
+              <button onClick={() => { /* Add payment logic here */ }} className="p-2 bg-blue-500 text-white rounded hover:bg-blue-700">Pay Now</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

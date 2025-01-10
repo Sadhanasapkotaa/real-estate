@@ -22,17 +22,21 @@ class RolePrefix(Enum):
         return cls[roles[0].upper()].value if roles[0].upper() in cls.__members__ else 'U-'
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, name, roles, password=None):
+    def create_user(self, email, name, roles=None, password=None):
         if not roles:
-            raise ValueError("Users must have at least one role")
+            roles = ['buyer', 'owner']  # Default roles if none are provided
         
         user = self.model(
             email=self.normalize_email(email),
             name=name,
+            is_active=False  # User is inactive until they activate their account
         )
         user.set_password(password)
         user.save(using=self._db)  # Save the user first to get an id
-        user.roles.set(roles)  # Now you can safely set the roles
+
+        # Fetch Role instances based on role names
+        role_instances = Role.objects.filter(name__in=roles)
+        user.roles.set(role_instances)  # Now you can safely set the roles
         return user
 
     def create_superuser(self, email, name, roles=['admin'], password=None):

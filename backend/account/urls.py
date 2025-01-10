@@ -21,5 +21,8 @@ router.register(r'suppliers', SupplierModelViewSet)
 urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+    path('auth/', include('djoser.urls.authtoken')),
     path('', include(router.urls)),
+    # Remove the custom request_user_activation path
+    # path("auth/activate/<uid>/<token>/", request_user_activation, name="request_user_activation"),
 ]
