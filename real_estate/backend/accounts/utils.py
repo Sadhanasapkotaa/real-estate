@@ -7,9 +7,9 @@ def generateOTP():
     otp = random.randint(100000, 999999)
     return otp
 
-def send_code_to_user(email, otp):
+def send_code_to_user(email, otp=None):
     email_subject = 'Email Verification For Rentmyspace'
-    otp_code = generateOTP()
+    otp_code = otp if otp else generateOTP()
     print(otp_code)
     user = User.objects.get(email=email)
     current_site = "Rentmyspace.com"
@@ -20,5 +20,4 @@ def send_code_to_user(email, otp):
 
     composed_email = EmailMessage(subject=email_subject, body=email_body, from_email=from_email, to=[email])
     composed_email.send(fail_silently=True)
-    
-   
+

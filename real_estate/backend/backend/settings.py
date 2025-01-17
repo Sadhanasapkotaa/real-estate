@@ -100,6 +100,7 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 # "heartfeltlovestory@gmail.com"
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD") 
 # "jxwdirgsmqctpnte"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Add this line
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -153,3 +154,21 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 ALLOWED_HOSTS = ['*']
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+}
+
+
+# This one is for credentials 
+
+# SECRET_KEY=django-insecure-r1dx(j56g%gpjr(hsanfibwz2u9t+jkbbjqifh9)w$9t)e11u6
+# DEBUG=True
+# EMAIL_HOST_USER=heartfeltlovestory@gmail.com
+# EMAIL_HOST_PASSWORD=jxwdirgsmqctpnte
