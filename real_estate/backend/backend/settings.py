@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import environ
 from pathlib import Path
+from datetime import timedelta
 
 env = environ.Env(
     # set casting, default value
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     "accounts",
     "social_accounts",
     "corsheaders",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 MIDDLEWARE = [
@@ -91,6 +93,24 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+AUTH_USER_MODEL = "accounts.User"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=180),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_HEADER_TYPES": ('Bearer',),
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -102,7 +122,6 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 # "jxwdirgsmqctpnte"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Add this line
 
-AUTH_USER_MODEL = "accounts.User"
 
 
 # Password validation
@@ -154,16 +173,6 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 ALLOWED_HOSTS = ['*']
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-    ),
-}
 
 
 # This one is for credentials 

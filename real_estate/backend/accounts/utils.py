@@ -21,3 +21,13 @@ def send_code_to_user(email, otp=None):
     composed_email = EmailMessage(subject=email_subject, body=email_body, from_email=from_email, to=[email])
     composed_email.send(fail_silently=True)
 
+
+def send_normal_email(data):
+    email = EmailMessage(
+        subject=data['email_subject'],
+        body=data['email_body'],
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[data['to_email']]
+    )
+    composed_email = EmailMessage(subject=data['email_subject'], body=data['email_body'], from_email=settings.DEFAULT_FROM_EMAIL, to=[data['to_email']])
+    composed_email.send(fail_silently=True)
