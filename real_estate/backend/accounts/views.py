@@ -10,6 +10,8 @@ from .models import OneTimePassword, User
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from rest_framework_simplejwt.tokens import RefreshToken
+
 # Create your views here.
 
 class RegisterUserView(GenericAPIView):
@@ -29,6 +31,9 @@ class RegisterUserView(GenericAPIView):
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        return Response({"detail": "Method \"GET\" not allowed."}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class VerifyUserEmail(GenericAPIView):
@@ -60,11 +65,24 @@ class VerifyUserEmail(GenericAPIView):
 class LoginUserView(GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [AllowAny]
+
     def post(self, request):
-        serializer=self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+        user = serializer.validated_data['user']
+        
+        if not user.is_verified:
+            return Response({
+                'message': 'Email not verified. Please check your email for the verification code.',
+                'redirect': '/verify'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }, status=status.HTTP_200_OK)
+
 class TestAuthenticationView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
@@ -169,14 +187,13 @@ class SetNewPassword(GenericAPIView):
 
 
 class LogoutUserView(GenericAPIView):
-    serializer_class = LogoutUserSerializer
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            {
-                'message': 'User logged out successfully',
-            }, status=status.HTTP_204_NO_CONTENT)
-    
+        try:
+            refresh_token = request.data['refresh']
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

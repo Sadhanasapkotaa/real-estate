@@ -122,6 +122,10 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 # "jxwdirgsmqctpnte"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Add this line
 
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET")
+SOCIAL_AUTH_PASSWORD = env("SOCIAL_AUTH_PASSWORD")
+
 
 
 # Password validation
@@ -170,6 +174,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8000",
     "http://localhost:8080",
+    "https://opulent-memory-5pgwv57r9wwf7xg5-3000.app.github.dev",
+    "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev"  # Add this line
 ]
 
 ALLOWED_HOSTS = ['*']
@@ -177,7 +183,11 @@ ALLOWED_HOSTS = ['*']
 
 # This one is for credentials 
 
+
 # SECRET_KEY=django-insecure-r1dx(j56g%gpjr(hsanfibwz2u9t+jkbbjqifh9)w$9t)e11u6
 # DEBUG=True
 # EMAIL_HOST_USER=heartfeltlovestory@gmail.com
 # EMAIL_HOST_PASSWORD=jxwdirgsmqctpnte
+# GOOGLE_CLIENT_ID=89245744319-klvn7g0bpfsiadpokgabvnhgckpeuvn4.apps.googleusercontent.com
+# GOOGLE_CLIENT_SECRET=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
+# SOCIAL_AUTH_PASSWORD=OFFOSADHANA#123*

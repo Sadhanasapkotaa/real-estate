@@ -12,6 +12,13 @@ from django.urls import reverse
 from .utils import send_normal_email
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
+AUTH_PROVIDERS = {
+    'email': 'email',
+    'google': 'google',
+    'facebook': 'facebook',
+    # Add other providers as needed
+}
+
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=68, min_length=6, write_only=True)
     password2 = serializers.CharField(max_length=68, min_length=6, write_only=True)
@@ -29,44 +36,29 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        validated_data.setdefault('auth_provider', AUTH_PROVIDERS.get('email'))
         user = User.objects.create_user(
             email=validated_data["email"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
             password=validated_data["password"],
+            auth_provider=validated_data["auth_provider"]
         )
         return user
 
-class LoginSerializer(serializers.ModelSerializer):
-    email=serializers.EmailField(max_length=255, min_length=3)
-    password=serializers.CharField(max_length=68, min_length=6, write_only=True)
-    full_name=serializers.CharField(max_length=255, read_only=True)
-    access_token=serializers.CharField(max_length=255, read_only=True)
-    refresh_token=serializers.CharField(max_length=255, read_only=True)
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
 
-    class Meta:
-        model = User
-        fields = ["email", "password", "full_name", "access_token", "refresh_token"]
-
-    def validate(self, attrs):
-        email = attrs.get("email")
-        password = attrs.get("password")
-        request = self.context.get("request")
-        user = authenticate(request=request, email=email, password=password)
-        if not user:
-            raise serializers.ValidationError("Invalid email or password")
-        
-        if not user.is_verified:
-            raise serializers.ValidationError("Email is not verified")
-        
-        user_tokens = user.tokens()
-
-        return {
-            "email": user.email,
-            "full_name": user.get_full_name,
-            "access_token": str(user_tokens.get("access")),
-            "refresh_token": str(user_tokens.get("refresh")),
-        }
+    def validate(self, data):
+        email = data.get('email')
+        password = data.get('password')
+        user = authenticate(email=email, password=password)
+        if user and user.is_active:
+            return {
+                'user': user,
+            }
+        raise serializers.ValidationError("Invalid credentials")
 
 class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField(min_length=3, max_length=255)
