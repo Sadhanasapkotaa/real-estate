@@ -3,7 +3,7 @@ import React, { useState, useCallback } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
-import LoginIcon from '@mui/icons-material/Login';
+// import Image from 'next/image';
 
 const menuItems = [
   { title: 'Properties', href: '#' },
@@ -32,7 +32,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-4">
             {menuItems.map((item) => (
              <a
               key={item.title}
@@ -46,10 +46,43 @@ const Navbar = () => {
 
           {/* User Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-             <LoginIcon className="h-4 w-4" />
-             <span>Login</span>
-            </button>
             <div className="h-8 w-8 rounded-full overflow-hidden ring-2 ring-gray-100 hover:ring-blue-200 transition-all duration-200">
-             <img
-              src="https
+              {/* <Image
+                src="/profile.jpg"
+                alt="User Avatar"
+                layout="fill"
+                objectFit="cover"
+              /> */}
+            </div>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button onClick={toggleMenu} className="text-gray-600 hover:text-blue-600 focus:outline-none">
+              {isOpen ? <CloseIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            {menuItems.map((item) => (
+              <a
+                key={item.title}
+                href={item.href}
+                className="block text-gray-600 hover:text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-md text-base font-medium transition-all duration-200"
+              >
+                {item.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+export default Navbar;

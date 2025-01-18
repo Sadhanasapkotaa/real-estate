@@ -48,8 +48,12 @@ INSTALLED_APPS = [
     "rest_framework",
     "accounts",
     "social_accounts",
-    "corsheaders",
+    "property",
+    "supplier",
+    "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
+
 ]
 
 MIDDLEWARE = [
@@ -163,6 +167,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -175,11 +184,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:8080",
     "https://opulent-memory-5pgwv57r9wwf7xg5-3000.app.github.dev",
-    "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev"  # Add this line
+    "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev",
 ]
 
-ALLOWED_HOSTS = ['*']
-
+# Update the base URL
+BASE_URL = "https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/"
 
 # This one is for credentials 
 
@@ -191,3 +200,6 @@ ALLOWED_HOSTS = ['*']
 # GOOGLE_CLIENT_ID=89245744319-klvn7g0bpfsiadpokgabvnhgckpeuvn4.apps.googleusercontent.com
 # GOOGLE_CLIENT_SECRET=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
 # SOCIAL_AUTH_PASSWORD=OFFOSADHANA#123*
+
+# Correct link to the image
+# "photo_main": "http://localhost:8000/photos/photos/2025/01/18/HouseOne_UBdrH0z.jpg",
