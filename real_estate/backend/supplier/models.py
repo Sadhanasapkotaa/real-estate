@@ -22,7 +22,7 @@ class Supplier(models.Model):
     phone_number = models.CharField(max_length=20)
     maplink = models.TextField(blank=True)
     website = models.URLField(blank=True)
-    supplier_image = models.ImageField(upload_to='suppliers/%Y/%m/%d', blank=True)
+    supplier_image = models.ImageField(upload_to='suppliers/%Y/%m/%d', blank=True, null=True)
 
     def __str__(self):
         return self.name
