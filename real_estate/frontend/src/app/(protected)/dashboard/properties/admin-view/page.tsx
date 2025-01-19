@@ -19,6 +19,8 @@ interface Property {
 
 const PropertiesPage = () => {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<{ id: number, message: string } | null>(null);
 
   useEffect(() => {
     axios.get('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/')
@@ -41,12 +43,25 @@ const PropertiesPage = () => {
   }, []);
 
   const handleDelete = (id: number) => {
-    // Implement delete logic here
+    axios.delete(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/${id}/`)
+      .then(() => {
+        setProperties(properties.filter(property => property.id !== id));
+        setMessage('Property deleted successfully.');
+        setError(null);
+      })
+      .catch(error => {
+        console.error('Error deleting property:', error);
+        setError({ id, message: 'Failed to delete property.' });
+        setMessage(null);
+        setTimeout(() => setError(null), 7000);
+      });
   };
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Properties</h1>
+      {message && <div className="mb-4 text-green-500">{message}</div>}
+      {error && !error.id && <div className="mb-4 text-red-500">{error.message}</div>}
       <table className="min-w-full border border-gray-200">
         <thead className="bg-gray-50 border-b-2 border-gray-200">
           <tr>
@@ -76,6 +91,7 @@ const PropertiesPage = () => {
                 <button className="text-red-500 hover:underline" onClick={() => handleDelete(property.id)}>
                   Delete
                 </button>
+                {error && error.id === property.id && <div className="text-red-500">{error.message}</div>}
               </td>
             </tr>
           ))}

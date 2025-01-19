@@ -38,13 +38,13 @@ export default function Navbar() {
           </div>
           {/* Sign In Button */}
           <div className="hidden md:flex items-center">
-            <Link href="/add-property">
+            <Link href="/auth/login">
               <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Add Property
+                Login
               </button>
             </Link>
 
-            <Link href="/signin">
+            <Link href="auth/signup">
               <button className="bg-white text-blue-700 px-4 mx-3 py-2 rounded hover:text-blue-700 hover:bg-gray-200">
                 Sign In
               </button>

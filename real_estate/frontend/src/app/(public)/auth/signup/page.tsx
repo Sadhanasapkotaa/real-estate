@@ -58,11 +58,13 @@ export default function SignupPage() {
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Error response data:', error.response?.data);
-        if (error.response && (error.response as AxiosResponse).status === 404) {
-          toast.error('API endpoint not found. Please check the URL.');
+        if (error.response) {
+          console.error('Error response data:', error.response.data);
+          if ((error.response as AxiosResponse).status === 404) {
+            toast.error('API endpoint not found. Please check the URL.');
+          }
         } else {
-          toast.error('Signup failed. Please try again.');
+          console.error('Error response is undefined');
         }
       } else {
         console.error('Error during registration:', error);

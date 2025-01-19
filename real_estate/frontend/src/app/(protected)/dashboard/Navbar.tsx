@@ -6,7 +6,7 @@ import HomeIcon from '@mui/icons-material/Home';
 // import Image from 'next/image';
 
 const menuItems = [
-  { title: 'Properties', href: '#' },
+  { title: 'Properties', href: 'dashboard/properties/list-properties' },
   { title: 'Suppliers', href: '#' },
   { title: 'Services', href: '#' },
   { title: 'Joint Development', href: '#' },

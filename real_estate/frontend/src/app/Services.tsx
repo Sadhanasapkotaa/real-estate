@@ -1,29 +1,33 @@
 import React from 'react';
+import HomeIcon from '@mui/icons-material/Home';
+import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
+import BuildIcon from '@mui/icons-material/Build';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
 
 const services = [
     {
         title: 'Property Listings',
         description:
             'Explore a wide range of properties available for sale or rent. Find your dream home or the perfect investment property.',
-        icon: '🏠',
+        icon: <HomeIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
     {
         title: 'Real Estate Consulting',
         description:
             'Receive expert advice from our real estate professionals to help you make the right decisions for your investments.',
-        icon: '💼',
+        icon: <BusinessCenterIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
     {
         title: 'Property Management',
         description:
             'Our property management services ensure that your properties are taken care of efficiently, maximizing your returns.',
-        icon: '🛠️',
+        icon: <BuildIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
     {
         title: 'Mortgage Assistance',
         description:
             'Get help finding the best mortgage rates and financial advice to secure the home of your dreams.',
-        icon: '💳',
+        icon: <CreditCardIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
 ];
 

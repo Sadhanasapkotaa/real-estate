@@ -49,6 +49,17 @@ const PropertyPage = () => {
     }
   }, [propertyId]);
 
+  const handleBookHouse = () => {
+    if (propertyId) {
+      axios.patch(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/${propertyId}/`, { status: 'booked' })
+        .then(response => {
+          setProperty(prevProperty => prevProperty ? { ...prevProperty, status: 'booked' } : null);
+          alert('House booked successfully!');
+        })
+        .catch(error => console.error('Error booking house:', error));
+    }
+  };
+
   if (!property) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -70,7 +81,7 @@ const PropertyPage = () => {
     <div className="container mx-auto px-4 py-8 bg-gray-50">
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Main Image Gallery */}
-        <div className="relative h-[500px] flex">
+        <div className="relative h-[600px] flex">
           <div className="w-2/3 relative">
             <Image
               src={activeImage || property.photo_main}
@@ -91,20 +102,31 @@ const PropertyPage = () => {
               <span className="text-2xl font-bold text-gray-900">${property.price.toLocaleString()}</span>
             </div>
           </div>
-          <div className="w-1/3 p-6 bg-gray-100 flex flex-col justify-center">
-            <InfoCard icon={<BedOutlined />} label="Bedrooms" value={property.bed} />
-            <InfoCard icon={<BathtubOutlined />} label="Bathrooms" value={property.bath} />
-            <InfoCard icon={<SquareFootOutlined />} label="Area" value={`${property.area} sq ft`} />
-            <InfoCard icon={<BusinessOutlined />} label="Floors" value={property.total_floors} />
+          <div className="w-1/3 flex flex-col items-start justify-center p-4">
+            {/* Description */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold mb-4">Description</h2>
+              <p className="text-gray-600 leading-relaxed">{property.description}</p>
+            </div>
+            {/* Quick Info */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <InfoCard icon={<BedOutlined />} label="Bedrooms" value={property.bed} />
+              <InfoCard icon={<BathtubOutlined />} label="Bathrooms" value={property.bath} />
+              <InfoCard icon={<SquareFootOutlined />} label="Area" value={`${property.area} sq ft`} />
+              <InfoCard icon={<BusinessOutlined />} label="Floors" value={property.total_floors} />
+            </div>
+            <button onClick={handleBookHouse} className="bg-blue-500 w-full text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-all">
+              Book House
+            </button>
           </div>
         </div>
 
         {/* Thumbnail Gallery */}
-        <div className="grid grid-cols-6 gap-2 p-4 bg-gray-100">
+        <div className="grid grid-cols-6 p-2 bg-gray-100 w-1/2">
           {allPhotos.map((photo, index) => (
             <div
               key={index}
-              className={`relative h-24 cursor-pointer rounded-lg overflow-hidden transition-all 
+              className={`relative h-20 w-20 cursor-pointer rounded-lg overflow-hidden transition-all 
                 ${activeImage === photo ? 'ring-2 ring-blue-500' : 'opacity-70 hover:opacity-100'}`}
               onClick={() => setActiveImage(photo)}
             >
@@ -114,20 +136,6 @@ const PropertyPage = () => {
         </div>
 
         <div className="p-8">
-          {/* Quick Info */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-            <InfoCard icon={<BedOutlined />} label="Bedrooms" value={property.bed} />
-            <InfoCard icon={<BathtubOutlined />} label="Bathrooms" value={property.bath} />
-            <InfoCard icon={<SquareFootOutlined />} label="Area" value={`${property.area} sq ft`} />
-            <InfoCard icon={<BusinessOutlined />} label="Floors" value={property.total_floors} />
-          </div>
-
-          {/* Description */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Description</h2>
-            <p className="text-gray-600 leading-relaxed">{property.description}</p>
-          </div>
-
           <div className="grid md:grid-cols-2 gap-8">
             {/* Property Details */}
             <div className="bg-gray-50 p-6 rounded-xl">
@@ -140,31 +148,6 @@ const PropertyPage = () => {
                 <DetailItem icon={<LocationCityOutlined />} label="District" value={property.district} />
                 <DetailItem icon={<AttachMoneyOutlined />} label="Purpose" value={property.sale_or_rent} />
               </div>
-            </div>
-
-            {/* Realtor Info */}
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <h2 className="text-2xl font-bold mb-4">Contact Agent</h2>
-              {property.realtor && property.realtor.user && (
-                <div className="flex items-center gap-4">
-                  <div className="relative w-24 h-24">
-                    <Image
-                      src={property.realtor.photo}
-                      alt={`${property.realtor.user.first_name} ${property.realtor.user.last_name}`}
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded-full"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">{`${property.realtor.user.first_name} ${property.realtor.user.last_name}`}</h3>
-                    <p className="text-gray-600">@{property.owner.username}</p>
-                    <button className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors">
-                      Contact Agent
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -183,18 +166,6 @@ const PropertyPage = () => {
             </div>
           </div>
 
-          {/* Map */}
-          <div className="mt-8 bg-gray-50 p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Location</h2>
-            <div className="relative w-full h-96 rounded-xl overflow-hidden">
-              <iframe
-                src={property.map_link}
-                className="absolute inset-0 w-full h-full border-0"
-                allowFullScreen
-                loading="lazy"
-              ></iframe>
-            </div>
-          </div>
         </div>
       </div>
     </div>

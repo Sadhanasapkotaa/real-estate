@@ -35,7 +35,7 @@ const Gallery: React.FC = () => {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-4 m-10">
+    <div className="grid grid-cols-3 gap-4 m-20 p-5">
       {images.map((image, index) => (
         <div key={index} className="cursor-pointer" onClick={() => startSlideshow(index)}>
           <img src={image} alt={`Gallery image ${index + 1}`} className="w-full h-auto" />
