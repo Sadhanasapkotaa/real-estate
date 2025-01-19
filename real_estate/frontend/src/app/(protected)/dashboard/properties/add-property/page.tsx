@@ -15,10 +15,82 @@ const customIcon = new L.Icon({
 });
 
 const DISTRICT_CHOICES = [
+  { value: 'achham', label: 'Achham' },
+  { value: 'arghakhanchi', label: 'Arghakhanchi' },
+  { value: 'baglung', label: 'Baglung' },
+  { value: 'baitadi', label: 'Baitadi' },
+  { value: 'bajhang', label: 'Bajhang' },
+  { value: 'bajura', label: 'Bajura' },
+  { value: 'banke', label: 'Banke' },
+  { value: 'bara', label: 'Bara' },
+  { value: 'bardiya', label: 'Bardiya' },
+  { value: 'bhaktapur', label: 'Bhaktapur' },
   { value: 'bhojpur', label: 'Bhojpur' },
+  { value: 'chitwan', label: 'Chitwan' },
+  { value: 'dadeldhura', label: 'Dadeldhura' },
+  { value: 'dailekh', label: 'Dailekh' },
+  { value: 'dang', label: 'Dang' },
+  { value: 'darchula', label: 'Darchula' },
+  { value: 'dhading', label: 'Dhading' },
   { value: 'dhankuta', label: 'Dhankuta' },
-  // ...other districts...
+  { value: 'dhanusha', label: 'Dhanusha' },
+  { value: 'dholkha', label: 'Dholkha' },
+  { value: 'dolpa', label: 'Dolpa' },
   { value: 'doti', label: 'Doti' },
+  { value: 'gorkha', label: 'Gorkha' },
+  { value: 'gulmi', label: 'Gulmi' },
+  { value: 'humla', label: 'Humla' },
+  { value: 'ilam', label: 'Ilam' },
+  { value: 'jajarkot', label: 'Jajarkot' },
+  { value: 'jhapa', label: 'Jhapa' },
+  { value: 'jumla', label: 'Jumla' },
+  { value: 'kailali', label: 'Kailali' },
+  { value: 'kalikot', label: 'Kalikot' },
+  { value: 'kanchanpur', label: 'Kanchanpur' },
+  { value: 'kapilvastu', label: 'Kapilvastu' },
+  { value: 'kaski', label: 'Kaski' },
+  { value: 'kathmandu', label: 'Kathmandu' },
+  { value: 'kavrepalanchok', label: 'Kavrepalanchok' },
+  { value: 'khotang', label: 'Khotang' },
+  { value: 'lalitpur', label: 'Lalitpur' },
+  { value: 'lamjung', label: 'Lamjung' },
+  { value: 'mahottari', label: 'Mahottari' },
+  { value: 'makwanpur', label: 'Makwanpur' },
+  { value: 'manang', label: 'Manang' },
+  { value: 'morang', label: 'Morang' },
+  { value: 'mugu', label: 'Mugu' },
+  { value: 'mustang', label: 'Mustang' },
+  { value: 'myagdi', label: 'Myagdi' },
+  { value: 'nawalpur', label: 'Nawalpur' },
+  { value: 'nuwakot', label: 'Nuwakot' },
+  { value: 'okhaldhunga', label: 'Okhaldhunga' },
+  { value: 'palpa', label: 'Palpa' },
+  { value: 'panchthar', label: 'Panchthar' },
+  { value: 'parbat', label: 'Parbat' },
+  { value: 'parsa', label: 'Parsa' },
+  { value: 'pyuthan', label: 'Pyuthan' },
+  { value: 'ramechhap', label: 'Ramechhap' },
+  { value: 'rasuwa', label: 'Rasuwa' },
+  { value: 'rautahat', label: 'Rautahat' },
+  { value: 'rolpa', label: 'Rolpa' },
+  { value: 'rukum_east', label: 'Rukum East' },
+  { value: 'rukum_west', label: 'Rukum West' },
+  { value: 'rupandehi', label: 'Rupandehi' },
+  { value: 'salyan', label: 'Salyan' },
+  { value: 'sankhuwasabha', label: 'Sankhuwasabha' },
+  { value: 'saptari', label: 'Saptari' },
+  { value: 'sarlahi', label: 'Sarlahi' },
+  { value: 'sindhuli', label: 'Sindhuli' },
+  { value: 'sindhupalchok', label: 'Sindhupalchok' },
+  { value: 'siraha', label: 'Siraha' },
+  { value: 'solukhumbu', label: 'Solukhumbu' },
+  { value: 'sunsari', label: 'Sunsari' },
+  { value: 'surkhet', label: 'Surkhet' },
+  { value: 'syangja', label: 'Syangja' },
+  { value: 'tanahun', label: 'Tanahun' },
+  { value: 'taplejung', label: 'Taplejung' },
+  { value: 'terhathum', label: 'Terhathum' },
+  { value: 'udayapur', label: 'Udayapur' },
 ];
 
 const AMENITIES_CHOICES = [
@@ -153,10 +225,16 @@ const AddPropertyPage = () => {
       <h1 className="text-2xl font-bold mb-4">Add Property</h1>
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="mb-4">
+
+      <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
+          <h2 className="text-xl font-semibold mb-2">Description</h2>
+          <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+          <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+        </div>
+
+        <div className="mb-4 mx-10 p-4  border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Basic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
             <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
             <input type="number" name="price" placeholder="Price" value={formData.price} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
             <input type="number" name="bed" placeholder="Number of Bedrooms" value={formData.bed} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
@@ -169,12 +247,8 @@ const AddPropertyPage = () => {
           </div>
         </div>
 
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Description</h2>
-          <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-        </div>
-
-        <div className="mb-4">
+       
+        <div className="mb-4 p-4 border border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Location</h2>
           <MapContainer center={markerPosition} zoom={10} style={{ height: "400px", width: "100%" }} className="mb-4">
             <TileLayer
@@ -187,7 +261,7 @@ const AddPropertyPage = () => {
           <input type="text" name="map_link" placeholder="Map Link" value={formData.map_link} onChange={handleChange} readOnly className="w-full p-2 border border-gray-300 rounded" />
         </div>
 
-        <div className="mb-4">
+        <div className="mb-4 p-4 border border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Property Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <select name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
@@ -237,7 +311,7 @@ const AddPropertyPage = () => {
           </div>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-4 p-4 border border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Images & Documents</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input type="file" name="photo_main" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
