@@ -1,23 +1,31 @@
-import React from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 // ...existing code...
-
-const suppliers = [
-  // ...example supplier data...
-];
 
 const SupplierCard = ({ supplier }) => (
   <div className="supplier-card">
     <h3>{supplier.name}</h3>
     <p>{supplier.description}</p>
-    <p>{supplier.contact}</p>
+    <p>Contact: {supplier.phone_number}</p>
+    <a href={supplier.maplink} target="_blank" rel="noopener noreferrer">View on Map</a>
+    <br />
+    <a href={supplier.website} target="_blank" rel="noopener noreferrer">Visit Website</a>
   </div>
 );
-
 const ListSuppliers = () => {
+  const [suppliers, setSuppliers] = useState([]);
+
+  useEffect(() => {
+    fetch('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/suppliers/')
+      .then(response => response.json())
+      .then(data => setSuppliers(data))
+      .catch(error => console.error('Error fetching suppliers:', error));
+  }, []);
+
   return (
     <div className="supplier-list">
-      {suppliers.map((supplier, index) => (
-        <SupplierCard key={index} supplier={supplier} />
+      {suppliers.map((supplier) => (
+        <SupplierCard key={supplier.id} supplier={supplier} />
       ))}
     </div>
   );

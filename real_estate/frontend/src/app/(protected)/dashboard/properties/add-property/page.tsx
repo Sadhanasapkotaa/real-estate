@@ -169,7 +169,7 @@ const AddPropertyPage = () => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
       if (name === 'photos') {
-        setFormData({ ...formData, photos: Array.from(files) });
+        setFormData({ ...formData, photos: Array.from(files).slice(0, 6) }); // Limit to 6 images
       } else {
         setFormData({ ...formData, [name]: files[0] });
       }
@@ -227,7 +227,7 @@ const AddPropertyPage = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
 
       <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
-          <h2 className="text-xl font-semibold mb-2">Description</h2>
+          <h2 className="text-xl font-semibold mb-2 p-2">Description</h2>
           <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
           <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
         </div>
@@ -248,7 +248,7 @@ const AddPropertyPage = () => {
         </div>
 
        
-        <div className="mb-4 p-4 border border-gray-300 rounded">
+        <div className="mb-4 p-4 mx-10">
           <h2 className="text-xl font-semibold mb-2">Location</h2>
           <MapContainer center={markerPosition} zoom={10} style={{ height: "400px", width: "100%" }} className="mb-4">
             <TileLayer
@@ -261,7 +261,7 @@ const AddPropertyPage = () => {
           <input type="text" name="map_link" placeholder="Map Link" value={formData.map_link} onChange={handleChange} readOnly className="w-full p-2 border border-gray-300 rounded" />
         </div>
 
-        <div className="mb-4 p-4 border border-gray-300 rounded">
+        <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Property Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <select name="status" value={formData.status} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
@@ -290,13 +290,7 @@ const AddPropertyPage = () => {
               <option value="sale">For Sale</option>
               <option value="rent">For Rent</option>
             </select>
-            <select name="property_type" value={formData.property_type} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
-              <option value="">Property Type</option>
-              <option value="house">House</option>
-              <option value="apartment">Apartment</option>
-              <option value="condo">Condo</option>
-              <option value="land">Land</option>
-            </select>
+
             <select name="amenities" value={formData.amenities} onChange={handleChange} multiple className="w-full p-2 border border-gray-300 rounded">
               {AMENITIES_CHOICES.map((amenity) => (
                 <option key={amenity.value} value={amenity.value}>{amenity.label}</option>
@@ -308,19 +302,21 @@ const AddPropertyPage = () => {
                 <option key={tag.value} value={tag.value}>{tag.label}</option>
               ))}
             </select>
+            <select name="property_type" value={formData.property_type} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
+              <option value="">Property Type</option>
+              <option value="house">House</option>
+              <option value="apartment">Apartment</option>
+              <option value="condo">Condo</option>
+              <option value="land">Land</option>
+            </select>
+           
           </div>
         </div>
 
-        <div className="mb-4 p-4 border border-gray-300 rounded">
+        <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Images & Documents</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="file" name="photo_main" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="photo_1" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="photo_2" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="photo_3" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="photo_4" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="photo_5" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="photos" onChange={handleChange} multiple className="w-full p-2 border border-gray-300 rounded" />
+            <input type="file" name="photos" onChange={handleChange} multiple accept="image/*" className="w-full p-2 border border-gray-300 rounded" />
             <input type="file" name="documents" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
           </div>
         </div>
