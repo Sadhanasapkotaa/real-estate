@@ -1,6 +1,7 @@
+"use client"; // Ensure the component is treated as a client component
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 
 const SupplierList = () => {
     const [suppliers, setSuppliers] = useState([]);
@@ -28,34 +29,50 @@ const SupplierList = () => {
     };
 
     return (
-        <table>
-            <thead>
-                <tr>
-                    <th>Photo</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {suppliers.map(supplier => (
-                    <tr key={supplier.id}>
-                        <td>
-                            {supplier.supplier_image && <img src={supplier.supplier_image} alt={supplier.name} width="50" />}
-                        </td>
-                        <td>{supplier.name}</td>
-                        <td>
-                            <Link to={`/suppliers/${supplier.id}`}>See More</Link>
-                        </td>
-                        <td>
-                            <Link to={`/suppliers/edit/${supplier.id}`}>Edit</Link>
-                        </td>
-                        <td>
-                            <button onClick={() => handleDelete(supplier.id)}>Delete</button>
-                        </td>
+        <div className="max-w-7xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8">
+            <table className="min-w-full">
+                <thead>
+                    <tr>
+                        <th className="px-6 py-3 border-b">Photo</th>
+                        <th className="px-6 py-3 border-b">Name</th>
+                        <th className="px-6 py-3 border-b">Actions</th>
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {suppliers.map(supplier => (
+                        <tr key={supplier.id}>
+                            <td className="px-6 py-4 border-b">
+                                {supplier.supplier_image && (
+                                    <img src={supplier.supplier_image} alt={supplier.name} width="50" className="rounded-full" />
+                                )}
+                            </td>
+                            <td className="px-6 py-4 border-b">{supplier.name}</td>
+                            <td className="px-6 py-4 border-b">
+                                <a 
+                                    href={`/suppliers/${supplier.id}`} 
+                                    className="text-blue-500 hover:text-blue-700">
+                                    See More
+                                </a>
+                            </td>
+                            <td className="px-6 py-4 border-b">
+                                <a 
+                                    href={`/suppliers/edit/${supplier.id}`} 
+                                    className="text-yellow-500 hover:text-yellow-700">
+                                    Edit
+                                </a>
+                            </td>
+                            <td className="px-6 py-4 border-b">
+                                <button 
+                                    onClick={() => handleDelete(supplier.id)} 
+                                    className="text-red-500 hover:text-red-700">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 };
 
