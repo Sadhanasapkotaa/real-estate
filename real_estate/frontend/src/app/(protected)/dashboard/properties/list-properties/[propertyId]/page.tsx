@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
+import React360Viewer from 'react-360-view';
 import {
   BedOutlined,
   BathtubOutlined,
@@ -15,13 +16,34 @@ import {
   LayersOutlined,
   LocationCityOutlined,
   AttachMoneyOutlined,
-  Pool,
-  Wifi,
-  LocalParking,
   Security,
 } from '@mui/icons-material';
 
-// Keep the existing Property interface
+interface Property {
+  title: string;
+  city: string;
+  province: string;
+  price: number;
+  description: string;
+  bed: number;
+  bath: number;
+  area: number;
+  total_floors: number;
+  status: string;
+  property_type: string;
+  year_built: number;
+  floor_number: number;
+  district: string;
+  sale_or_rent: string;
+  photo_main: string;
+  photo_1?: string;
+  photo_2?: string;
+  photo_3?: string;
+  photo_4?: string;
+  photo_5?: string;
+  documents?: string;
+  amenities: string[];
+}
 
 const PropertyPage = () => {
   const { propertyId } = useParams();
@@ -32,15 +54,16 @@ const PropertyPage = () => {
     if (propertyId) {
       axios.get(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/${propertyId}`)
         .then((response) => {
+          const data = response.data;
           const updatedProperty = {
-            ...response.data,
-            photo_main: response.data.photo_main.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_1: response.data.photo_1?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_2: response.data.photo_2?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_3: response.data.photo_3?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_4: response.data.photo_4?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_5: response.data.photo_5?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            documents: response.data.documents?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
+            ...data,
+            photo_main: data.photo_main ? data.photo_main.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            photo_1: data.photo_1 ? data.photo_1.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            photo_2: data.photo_2 ? data.photo_2.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            photo_3: data.photo_3 ? data.photo_3.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            photo_4: data.photo_4 ? data.photo_4.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            photo_5: data.photo_5 ? data.photo_5.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            documents: data.documents ? data.documents.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
           };
           setProperty(updatedProperty);
           setActiveImage(updatedProperty.photo_main);
@@ -149,23 +172,36 @@ const PropertyPage = () => {
                 <DetailItem icon={<AttachMoneyOutlined />} label="Purpose" value={property.sale_or_rent} />
               </div>
             </div>
-          </div>
 
-          {/* Amenities */}
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Amenities</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {property.amenities.map((amenity, index) => (
-                <div key={index} className="flex items-center gap-2 text-gray-600">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Pool className="text-blue-500" />
+            {/* Virtual Tour */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4">Virtual Tour</h2>
+              <div className="relative h-[600px]">
+                <React360Viewer
+                  amount={allPhotos.length}
+                  imagePath="https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/images/"
+                  fileName="photo_{index}.jpg"
+                  autoplay
+                  loop
+                />
+              </div>
+            </div>
+
+            {/* Amenities */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold mb-4">Amenities</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {property.amenities.map((amenity, index) => (
+                  <div key={index} className="flex items-center gap-2 text-gray-600">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Security className="text-blue-500" />
+                    </div>
+                    <span>{amenity}</span>
                   </div>
-                  <span>{amenity}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>

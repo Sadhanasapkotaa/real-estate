@@ -7,11 +7,11 @@ import HomeIcon from '@mui/icons-material/Home';
 
 const menuItems = [
   { title: 'Properties', href: 'dashboard/properties/list-properties' },
-  { title: 'Suppliers', href: '#' },
-  { title: 'Services', href: '#' },
-  { title: 'Joint Development', href: '#' },
-  { title: 'Map', href: '#' },
-  { title: 'Blogs', href: '#' }
+  { title: 'Suppliers', href: 'dashboard/suppliers/list-suppliers'},
+  { title: 'Services', href: 'dashboard/services/list-services' },
+  { title: 'Joint Development', href: 'dashboard/joint-dev/list-jds' },
+  { title: 'Map', href: 'dashboard/maps' },
+  { title: 'Blogs', href: 'dashboard/blogs/list-blogs' }
 ];
 
 const Navbar = () => {

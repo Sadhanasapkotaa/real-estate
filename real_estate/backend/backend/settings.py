@@ -50,10 +50,10 @@ INSTALLED_APPS = [
     "social_accounts",
     "property",
     "supplier",
+    "services",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
-
 ]
 
 MIDDLEWARE = [
