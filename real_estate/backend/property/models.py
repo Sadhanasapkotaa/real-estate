@@ -150,6 +150,10 @@ class Property(models.Model):
     documents = models.FileField(upload_to='documents/%Y/%m/%d/', blank=True, verbose_name="Documents")
     updated_date = models.DateTimeField(auto_now=True, verbose_name="Last Updated")
     added_date = models.DateTimeField(auto_now_add=True, verbose_name="Date Added")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
+    negotiation_count = models.IntegerField(default=0, verbose_name="Negotiation Count")
+    average_negotiation_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Average Negotiation Price")
 
     def __str__(self):
         return str(self.title)
@@ -161,6 +165,63 @@ class Realtor(models.Model):
     description = models.TextField(blank=True, verbose_name="Description")
     is_mvp = models.BooleanField(default=False, verbose_name="MVP Status")
     hire_date = models.DateTimeField(auto_now_add=True, verbose_name="Hire Date")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Updated At")
 
     def __str__(self):
         return str(self.user)
+
+class Negotiation(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='negotiations', verbose_name="Property")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='negotiations', verbose_name="Owner")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_negotiations', verbose_name="User")
+    negotiated_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Negotiated Price")
+    negotiation_reason = models.TextField(verbose_name="Negotiation Reason")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    def __str__(self):
+        return f"Negotiation for {self.property.title} by {self.user}"
+
+class Review(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='reviews', verbose_name="Property")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owner_reviews', verbose_name="Owner")
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviewer_reviews', verbose_name="Reviewer")
+    stars = models.IntegerField(verbose_name="Stars")
+    review = models.TextField(verbose_name="Review")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    def __str__(self):
+        return f"Review for {self.property.title} by {self.reviewer}"
+
+class Complaint(models.Model):
+    COMPLAINT_CHOICES = [
+        ('electricity', 'Electricity'),
+        ('road', 'Road'),
+        ('wifi', 'WiFi'),
+        ('flooring', 'Flooring'),
+        ('roofing', 'Roofing'),
+        ('legal', 'Legal'),
+        ('neighbor_dispute', 'Neighbor Dispute'),
+        ('noise', 'Noise'),
+        ('other', 'Other'),
+    ]
+
+    STATUS_CHOICES = [
+        ('sent', 'Sent'),
+        ('reviewed', 'Reviewed'),
+        ('solving', 'Solving'),
+        ('solved', 'Solved'),
+        ('unsolvable', 'Unsolvable'),
+        ('dismissed', 'Dismissed'),
+    ]
+
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='complaints', verbose_name="Property")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owner_complaints', verbose_name="Owner")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_complaints', verbose_name="User")
+    complaint_type = models.CharField(max_length=20, choices=COMPLAINT_CHOICES, verbose_name="Complaint Type")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='sent', verbose_name="Complaint Status")
+    description = models.TextField(verbose_name="Description")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
+
+    def __str__(self):
+        return f"Complaint for {self.property.title} by {self.user}"

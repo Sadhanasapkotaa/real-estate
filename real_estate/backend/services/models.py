@@ -14,9 +14,16 @@ class Service(models.Model):
         ('security', 'Security'),
         ('moving', 'Moving'),
         ('renovation', 'Renovation'),
+        ('cleaning', 'Cleaning'),
+        ('other', 'Other'),
     ]
-    service_type = models.CharField(max_length=20, choices=SERVICE_TYPES)
+    PROVIDER_TYPES = [
+        ('individual', 'Individual'),
+        ('company', 'Company'),
+    ]
+    service_type = models.CharField(max_length=20, choices=SERVICE_TYPES, default= 'other')
     service_provider = models.CharField(max_length=255)
+    provider_type = models.CharField(max_length=20, choices=PROVIDER_TYPES, default='individual')  # Add default value
     service_name = models.CharField(max_length=255)  # Fixed typo from 'sservice_name' to 'service_name'
     service_charge = models.FloatField()
     time_of_service = models.CharField(max_length=50)

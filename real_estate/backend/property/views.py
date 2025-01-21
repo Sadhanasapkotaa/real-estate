@@ -1,6 +1,9 @@
 from rest_framework import viewsets
-from .models import Property, Realtor
-from .serializers import PropertySerializer, RealtorSerializer
+from .models import Property, Realtor, Negotiation, Review, Complaint
+from .serializers import PropertySerializer, RealtorSerializer, NegotiationSerializer, ReviewSerializer, ComplaintSerializer
+from django.core.mail import EmailMessage
+from django.conf import settings
+from .utils import send_status_change_email
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
@@ -13,6 +16,13 @@ class PropertyViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(city__iexact=city)
         return queryset
 
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        initial_status = instance.status
+        final_status = serializer.validated_data.get('status', instance.status)
+        if initial_status != final_status:
+            send_status_change_email(instance.owner.email, initial_status, final_status)
+
 class RealtorViewSet(viewsets.ModelViewSet):
     queryset = Realtor.objects.all()
     serializer_class = RealtorSerializer
@@ -22,4 +32,22 @@ class RealtorViewSet(viewsets.ModelViewSet):
             return RealtorSerializer
         return super().get_serializer_class()
 
-# Create your views here.
+class NegotiationViewSet(viewsets.ModelViewSet):
+    queryset = Negotiation.objects.all()
+    serializer_class = NegotiationSerializer
+
+    def perform_create(self, serializer):
+        negotiation = serializer.save()
+        property = negotiation.property
+        property.negotiation_count += 1
+        total_negotiation_price = property.average_negotiation_price * (property.negotiation_count - 1) + negotiation.negotiated_price
+        property.average_negotiation_price = total_negotiation_price / property.negotiation_count
+        property.save()
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+class ComplaintViewSet(viewsets.ModelViewSet):
+    queryset = Complaint.objects.all()
+    serializer_class = ComplaintSerializer

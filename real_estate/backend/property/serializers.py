@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Property, Realtor
+from .models import Property, Realtor, Negotiation, Review, Complaint
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
@@ -19,4 +19,19 @@ class PropertySerializer(DynamicFieldsModelSerializer):
 class RealtorSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Realtor
+        fields = '__all__'
+
+class NegotiationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Negotiation
+        fields = '__all__'
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Complaint
         fields = '__all__'

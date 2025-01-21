@@ -43,12 +43,17 @@ interface Property {
   photo_5?: string;
   documents?: string;
   amenities: string[];
+  negotiation_count: number;
+  average_negotiation_price: number;
 }
 
 const PropertyPage = () => {
   const { propertyId } = useParams();
   const [property, setProperty] = useState<Property | null>(null);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [showNegotiationForm, setShowNegotiationForm] = useState(false);
+  const [counterPrice, setCounterPrice] = useState<number | null>(null);
+  const [negotiationDescription, setNegotiationDescription] = useState<string>('');
 
   useEffect(() => {
     if (propertyId) {
@@ -80,6 +85,27 @@ const PropertyPage = () => {
           alert('House booked successfully!');
         })
         .catch(error => console.error('Error booking house:', error));
+    }
+  };
+
+  const handleNegotiate = () => {
+    setShowNegotiationForm(true);
+  };
+
+  const handleSubmitNegotiation = () => {
+    if (propertyId && counterPrice && negotiationDescription) {
+      axios.post(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/negotiations/`, {
+        property: propertyId,
+        owner: property?.owner,
+        user: property?.owner, // Replace with the actual user ID
+        negotiated_price: counterPrice,
+        negotiation_reason: negotiationDescription,
+      })
+        .then(response => {
+          alert('Negotiation submitted successfully!');
+          setShowNegotiationForm(false);
+        })
+        .catch(error => console.error('Error submitting negotiation:', error));
     }
   };
 
@@ -138,9 +164,39 @@ const PropertyPage = () => {
               <InfoCard icon={<SquareFootOutlined />} label="Area" value={`${property.area} sq ft`} />
               <InfoCard icon={<BusinessOutlined />} label="Floors" value={property.total_floors} />
             </div>
-            <button onClick={handleBookHouse} className="bg-blue-500 w-full text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-all">
-              Book House
-            </button>
+            <div className="flex gap-4">
+              <button onClick={handleBookHouse} className="bg-blue-500 w-full text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-all">
+                Book Immediately
+              </button>
+              <button onClick={handleNegotiate} className="bg-yellow-500 w-full text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-all">
+                Negotiate
+              </button>
+            </div>
+            {showNegotiationForm && (
+              <div className="mt-4 bg-gray-100 p-4 rounded-lg shadow-md">
+                <h3 className="text-xl font-bold mb-2">Negotiate</h3>
+                <div className="mb-2">
+                  <label className="block text-gray-700">Counter Price</label>
+                  <input
+                    type="number"
+                    value={counterPrice || ''}
+                    onChange={(e) => setCounterPrice(Number(e.target.value))}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <div className="mb-2">
+                  <label className="block text-gray-700">Description</label>
+                  <textarea
+                    value={negotiationDescription}
+                    onChange={(e) => setNegotiationDescription(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <button onClick={handleSubmitNegotiation} className="bg-green-500 w-full text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition-all">
+                  Submit Negotiation
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -170,6 +226,8 @@ const PropertyPage = () => {
                 <DetailItem icon={<LayersOutlined />} label="Floor" value={property.floor_number} />
                 <DetailItem icon={<LocationCityOutlined />} label="District" value={property.district} />
                 <DetailItem icon={<AttachMoneyOutlined />} label="Purpose" value={property.sale_or_rent} />
+                <DetailItem icon={<LocalOfferOutlined />} label="Negotiation Count" value={property.negotiation_count} />
+                <DetailItem icon={<AttachMoneyOutlined />} label="Average Negotiation Price" value={`$${property.average_negotiation_price?.toLocaleString() || '0.00'}`} />
               </div>
             </div>
 
