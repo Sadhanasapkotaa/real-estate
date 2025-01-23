@@ -6,7 +6,7 @@ const ServicesPage = () => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    axios.get('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/services/')
+    axios.get('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/services/')
       .then(response => {
         setServices(response.data);
       })

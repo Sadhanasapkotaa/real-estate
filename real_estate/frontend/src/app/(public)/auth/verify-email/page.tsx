@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle OTP submission
-    const response = await fetch('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/v1/auth/verify/', {
+    const response = await fetch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/verify/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ export default function VerifyEmailPage() {
     });
 
     if (response.ok) {
-      router.push('/dashboard'); // Redirect to dashboard after successful verification
+      router.push('/auth/login'); // Redirect to login after successful verification
     } else {
       // Handle error
     }

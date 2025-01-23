@@ -36,7 +36,7 @@ const AddServicePage = () => {
       data.append(key, formData[key]);
     }
 
-    axios.post('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/services/', data)
+    axios.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/services/', data)
       .then(response => {
         console.log('Service added successfully:', response.data);
       })

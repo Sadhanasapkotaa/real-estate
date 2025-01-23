@@ -57,18 +57,18 @@ const PropertyPage = () => {
 
   useEffect(() => {
     if (propertyId) {
-      axios.get(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/${propertyId}`)
+      axios.get(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/${propertyId}`)
         .then((response) => {
           const data = response.data;
           const updatedProperty = {
             ...data,
-            photo_main: data.photo_main ? data.photo_main.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
-            photo_1: data.photo_1 ? data.photo_1.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
-            photo_2: data.photo_2 ? data.photo_2.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
-            photo_3: data.photo_3 ? data.photo_3.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
-            photo_4: data.photo_4 ? data.photo_4.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
-            photo_5: data.photo_5 ? data.photo_5.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
-            documents: data.documents ? data.documents.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev') : null,
+            photo_main: data.photo_main ? data.photo_main.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
+            photo_1: data.photo_1 ? data.photo_1.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
+            photo_2: data.photo_2 ? data.photo_2.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
+            photo_3: data.photo_3 ? data.photo_3.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
+            photo_4: data.photo_4 ? data.photo_4.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
+            photo_5: data.photo_5 ? data.photo_5.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
+            documents: data.documents ? data.documents.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev') : null,
           };
           setProperty(updatedProperty);
           setActiveImage(updatedProperty.photo_main);
@@ -79,7 +79,7 @@ const PropertyPage = () => {
 
   const handleBookHouse = () => {
     if (propertyId) {
-      axios.patch(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/${propertyId}/`, { status: 'booked' })
+      axios.patch(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/${propertyId}/`, { status: 'booked' })
         .then(response => {
           setProperty(prevProperty => prevProperty ? { ...prevProperty, status: 'booked' } : null);
           alert('House booked successfully!');
@@ -94,7 +94,7 @@ const PropertyPage = () => {
 
   const handleSubmitNegotiation = () => {
     if (propertyId && counterPrice && negotiationDescription) {
-      axios.post(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/negotiations/`, {
+      axios.post(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/negotiations/`, {
         property: propertyId,
         owner: property?.owner,
         user: property?.owner, // Replace with the actual user ID
@@ -237,7 +237,7 @@ const PropertyPage = () => {
               <div className="relative h-[600px]">
                 <React360Viewer
                   amount={allPhotos.length}
-                  imagePath="https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/images/"
+                  imagePath="https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/images/"
                   fileName="photo_{index}.jpg"
                   autoplay
                   loop

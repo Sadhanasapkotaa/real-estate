@@ -185,15 +185,17 @@ class SetNewPassword(GenericAPIView):
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class LogoutUserView(GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
-            refresh_token = request.data['refresh']
+            refresh_token = request.data.get('refresh')
+            if not refresh_token:
+                return Response({'message': 'Refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
+            logging.error(f"Exception: {e}")
             return Response(status=status.HTTP_400_BAD_REQUEST)

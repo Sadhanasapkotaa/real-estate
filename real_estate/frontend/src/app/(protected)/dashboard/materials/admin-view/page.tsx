@@ -19,7 +19,7 @@ const EditMaterial = () => {
     useEffect(() => {
         const fetchMaterial = async () => {
             try {
-                const response = await axios.get(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/materials/${id}/`);
+                const response = await axios.get(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/materials/${id}/`);
                 setFormData(response.data);
             } catch (error) {
                 console.error('There was an error fetching the material!', error);
@@ -52,7 +52,7 @@ const EditMaterial = () => {
         }
 
         try {
-            await axios.put(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/materials/${id}/`, data, {
+            await axios.put(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/materials/${id}/`, data, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

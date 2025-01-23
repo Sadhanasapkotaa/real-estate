@@ -40,8 +40,11 @@ export default function Login() {
     try {
       const response = await api.post('/auth/login/', formData);
       if (response.status === 200) {
-        toast.success('Login successful! Redirecting to profile...');
-        router.push('/profile');
+        const { access, refresh } = response.data;
+        localStorage.setItem('accessToken', access);
+        localStorage.setItem('refreshToken', refresh);
+        toast.success('Login successful! Redirecting to dashboard...');
+        router.push('/dashboard');
       }
     } catch (error) {
       console.error('Error during login:', error);

@@ -46,7 +46,7 @@ const AddSupplier = () => {
 
         try {
             const response = await axios.post(
-                'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/suppliers/',
+                'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/suppliers/',
                 data,
                 {
                     headers: {

@@ -16,7 +16,7 @@ const ListSuppliers = () => {
   const [suppliers, setSuppliers] = useState([]);
 
   useEffect(() => {
-    fetch('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/suppliers/')
+    fetch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/suppliers/')
       .then(response => response.json())
       .then(data => setSuppliers(data))
       .catch(error => console.error('Error fetching suppliers:', error));

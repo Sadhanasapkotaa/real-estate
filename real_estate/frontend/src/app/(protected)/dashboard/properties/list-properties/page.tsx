@@ -23,19 +23,19 @@ const PropertiesPage = () => {
   const [properties, setProperties] = useState<Property[]>([]);
 
   useEffect(() => {
-    axios.get('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/')
+    axios.get('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/')
       .then(response => {
         const updatedProperties = response.data
           .filter((property: Property) => property.status === 'available') // Filter properties by status
           .map((property: Property) => ({
             ...property,
-            photo_main: property.photo_main.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_1: property.photo_1?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_2: property.photo_2?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_3: property.photo_3?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_4: property.photo_4?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            photo_5: property.photo_5?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
-            documents: property.documents?.replace('http://localhost:8000', 'https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev'),
+            photo_main: property.photo_main.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
+            photo_1: property.photo_1?.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
+            photo_2: property.photo_2?.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
+            photo_3: property.photo_3?.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
+            photo_4: property.photo_4?.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
+            photo_5: property.photo_5?.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
+            documents: property.documents?.replace('http://localhost:8000', 'https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev'),
           }));
         setProperties(updatedProperties);
       })

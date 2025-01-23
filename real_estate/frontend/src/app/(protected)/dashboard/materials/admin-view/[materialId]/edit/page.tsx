@@ -8,7 +8,7 @@ const MaterialsAdminView = () => {
     useEffect(() => {
         const fetchMaterials = async () => {
             try {
-                const response = await axios.get('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/materials/');
+                const response = await axios.get('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/materials/');
                 setMaterials(response.data);
             } catch (error) {
                 console.error('There was an error fetching the materials!', error);
@@ -20,7 +20,7 @@ const MaterialsAdminView = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/materials/${id}/`);
+            await axios.delete(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/materials/${id}/`);
             setMaterials(materials.filter(material => material.id !== id));
         } catch (error) {
             console.error('There was an error deleting the material!', error);

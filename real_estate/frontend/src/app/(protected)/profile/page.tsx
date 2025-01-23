@@ -3,13 +3,16 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import Sidebar from './Sidebar'; // Corrected import path
+import withAuth from '../../hoc/withAuth'; // Corrected import path
 
 const ProfilePage = () => {
   const router = useRouter();
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/logout');
+      await axios.post('/api/logout', {}, { withCredentials: true }); // Ensure cookies are sent
+      localStorage.removeItem('accessToken'); // Clear access token
+      localStorage.removeItem('refreshToken'); // Clear refresh token
       router.push('/login');
     } catch (error) {
       console.error('Error during logout:', error);
@@ -29,4 +32,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default withAuth(ProfilePage);

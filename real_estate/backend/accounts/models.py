@@ -20,6 +20,16 @@ class User( AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(auto_now=True)
     auth_provider = models.CharField(max_length=255, default=AUTH_PROVIDERS.get('email'))
 
+    ROLE_CHOICES = [
+        ('buyer', 'Buyer'),
+        ('seller', 'Seller'),
+        ('supplier', 'Supplier'),
+        ('service', 'Service'),
+        ('investor', 'Investor'),
+        ('admin', 'Admin'),
+        ('developer', 'Developer'),
+    ]
+    role = models.JSONField(default=lambda: ['buyer', 'seller'])  # Default roles
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
 

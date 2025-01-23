@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import withAuth from '../../../../hoc/withAuth';
 
 const customIcon = new L.Icon({
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
@@ -191,7 +192,7 @@ const AddPropertyPage = () => {
         }
       });
 
-      const response = await fetch('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/properties/', {
+      const response = await fetch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/', {
         method: 'POST',
         body: formDataToSend,
       });
@@ -328,4 +329,4 @@ const AddPropertyPage = () => {
   );
 };
 
-export default AddPropertyPage;
+export default withAuth(AddPropertyPage);

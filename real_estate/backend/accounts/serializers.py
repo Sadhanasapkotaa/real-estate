@@ -22,10 +22,11 @@ AUTH_PROVIDERS = {
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=68, min_length=6, write_only=True)
     password2 = serializers.CharField(max_length=68, min_length=6, write_only=True)
+    role = serializers.ListField(child=serializers.ChoiceField(choices=User.ROLE_CHOICES), default=['buyer', 'seller'])
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "password", "password2"]
+        fields = ["email", "first_name", "last_name", "password", "password2", "role"]
 
     def validate(self, attrs):
         password = attrs.get("password", "")
@@ -42,7 +43,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
             password=validated_data["password"],
-            auth_provider=validated_data["auth_provider"]
+            auth_provider=validated_data["auth_provider"],
+            role=validated_data["role"]
         )
         return user
 

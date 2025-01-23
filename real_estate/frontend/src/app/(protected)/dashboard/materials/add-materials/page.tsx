@@ -36,7 +36,7 @@ const AddMaterials = () => {
         }
 
         try {
-            await axios.post('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/materials/', data, {
+            await axios.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/materials/', data, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

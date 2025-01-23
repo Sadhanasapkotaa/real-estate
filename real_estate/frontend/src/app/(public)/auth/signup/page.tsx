@@ -45,7 +45,7 @@ export default function SignupPage() {
       return;
     }
     try {
-      const response = await api.post('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/v1/auth/register/', {
+      const response = await api.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/register/', {
         email: formData.email,
         first_name: formData.first_name,
         last_name: formData.last_name,

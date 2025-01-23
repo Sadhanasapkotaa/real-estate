@@ -6,7 +6,7 @@ const MaterialsList = () => {
   const [materials, setMaterials] = useState([]);
 
   useEffect(() => {
-    axios.get('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/materials/')
+    axios.get('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/materials/')
       .then(response => {
         setMaterials(response.data);
       })

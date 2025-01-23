@@ -9,7 +9,7 @@ const SupplierList = () => {
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
-                const response = await axios.get('https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/suppliers/');
+                const response = await axios.get('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/suppliers/');
                 setSuppliers(response.data);
             } catch (error) {
                 console.error('There was an error fetching the suppliers!', error);
@@ -21,7 +21,7 @@ const SupplierList = () => {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`https://opulent-memory-5pgwv57r9wwf7xg5-8000.app.github.dev/api/suppliers/${id}`);
+            await axios.delete(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/suppliers/${id}`);
             setSuppliers(suppliers.filter(supplier => supplier.id !== id));
         } catch (error) {
             console.error('There was an error deleting the supplier!', error);

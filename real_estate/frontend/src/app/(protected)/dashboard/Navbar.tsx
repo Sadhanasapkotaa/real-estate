@@ -5,7 +5,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import HomeIcon from '@mui/icons-material/Home';
 // import Image from 'next/image';
 
-const baseUrl = "https://opulent-memory-5pgwv57r9wwf7xg5-3000.app.github.dev/";
+const baseUrl = "https://silver-umbrella-5gr55qpvqxjw249v6-3000.app.github.dev/";
 
 const menuItems = [
   {
