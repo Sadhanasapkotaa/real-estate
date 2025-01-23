@@ -194,3 +194,14 @@ ALLOWED_HOSTS = ['*']
 # GOOGLE_CLIENT_ID=89245744319-klvn7g0bpfsiadpokgabvnhgckpeuvn4.apps.googleusercontent.com
 # GOOGLE_CLIENT_SECRET=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
 # SOCIAL_AUTH_PASSWORD=OFFOSADHANA#123*
+
+
+# This one is for credentials 
+
+# SECRET_KEY=django-insecure-r1dx(j56g%gpjr(hsanfibwz2u9t+jkbbjqifh9)w$9t)e11u6
+# DEBUG=True
+# EMAIL_HOST_USER=heartfeltlovestory@gmail.com
+# EMAIL_HOST_PASSWORD=jxwdirgsmqctpnte
+# GOOGLE_CLIENT_ID=89245744319-klvn7g0bpfsiadpokgabvnhgckpeuvn4.apps.googleusercontent.com
+# GOOGLE_CLIENT_SECRET=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
+# SOCIAL_AUTH_PASSWORD=OFFOSADHANA#123*
