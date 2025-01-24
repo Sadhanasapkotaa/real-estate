@@ -183,7 +183,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:8000",
     "http://localhost:8080",
-    "https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev",
+    "https://silver-umbrella-5gr55qpvqxjw249v6-3000.app.github.dev",
     "https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev",
 ]
 

@@ -40,9 +40,10 @@ export default function Login() {
     try {
       const response = await api.post('/auth/login/', formData);
       if (response.status === 200) {
-        const { access, refresh } = response.data;
+        const { access, refresh, user_id } = response.data; // Assuming the response contains user_id
         localStorage.setItem('accessToken', access);
         localStorage.setItem('refreshToken', refresh);
+        localStorage.setItem('userId', user_id); // Save user ID to localStorage
         toast.success('Login successful! Redirecting to dashboard...');
         router.push('/dashboard');
       }

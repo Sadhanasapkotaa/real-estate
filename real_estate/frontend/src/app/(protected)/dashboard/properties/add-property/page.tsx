@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -149,6 +151,7 @@ const AddPropertyPage = () => {
 
   const [markerPosition, setMarkerPosition] = useState({ lat: 28.3949, lng: 84.1240 }); // Default location set to Nepal
   const [errorMessage, setErrorMessage] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -160,19 +163,30 @@ const AddPropertyPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    // Check if the user is authenticated
+    const isAuthenticated = !!localStorage.getItem('token'); // Replace with your authentication logic
+    if (!isAuthenticated) {
+      router.push('/login'); // Redirect to login page if not authenticated
+    }
+  }, [router]);
+
   const handleMapClick = (e) => {
     setMarkerPosition({ lat: e.latlng.lat, lng: e.latlng.lng });
     setFormData({ ...formData, map_link: `https://www.openstreetmap.org/?mlat=${e.latlng.lat}&mlon=${e.latlng.lng}` });
   };
 
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value, type, files, selectedOptions } = e.target;
     if (type === 'file') {
       if (name === 'photos') {
         setFormData({ ...formData, photos: Array.from(files).slice(0, 6) }); // Limit to 6 images
       } else {
         setFormData({ ...formData, [name]: files[0] });
       }
+    } else if (type === 'select-multiple') {
+      const values = Array.from(selectedOptions).map(option => option.value);
+      setFormData({ ...formData, [name]: values });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -180,32 +194,45 @@ const AddPropertyPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate required fields
+    const requiredFields = ['title', 'description', 'province', 'district', 'city', 'price', 'bed', 'bath', 'area', 'plot_number', 'sale_or_rent', 'property_type', 'year_built'];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        setErrorMessage(`Error: ${field} is required.`);
+        return;
+      }
+    }
+
     try {
-      const formDataToSend = new FormData();
-      Object.keys(formData).forEach(key => {
+      const data = new FormData();
+      for (const key in formData) {
         if (key === 'photos') {
-          formData[key].forEach((file, index) => {
-            formDataToSend.append(`photo_${index + 1}`, file);
+          formData.photos.forEach((file, index) => {
+            data.append(`photo_${index + 1}`, file);
           });
+        } else if (formData[key] instanceof File) {
+          data.append(key, formData[key]);
         } else {
-          formDataToSend.append(key, formData[key]);
+          data.append(key, formData[key]);
+        }
+      }
+
+      console.log('Sending data:', Object.fromEntries(data.entries())); // Log the data being sent
+
+      const response = await axios.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
       });
 
-      const response = await fetch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/', {
-        method: 'POST',
-        body: formDataToSend,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error response:', response.status, errorText);
-        setErrorMessage(`Error: ${errorText}`);
+      if (response.status !== 201) {
+        console.error('Error response:', response.status, response.data);
+        setErrorMessage(`Error: ${response.data}`);
         throw new Error('Network response was not ok');
       }
 
-      const result = await response.json();
-      console.log('Property added successfully:', result);
+      console.log('Property added successfully:', response.data);
       // Optionally, redirect or show success message
     } catch (error) {
       console.error('Error adding property:', error);
@@ -224,15 +251,14 @@ const AddPropertyPage = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Add Property</h1>
       {errorMessage && <div className="text-red-500 mb-4">{errorMessage}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-
-      <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
+      <form onSubmit={handleSubmit} className="space-y-4" encType="multipart/form-data">
+        <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2 p-2">Description</h2>
           <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
           <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
         </div>
 
-        <div className="mb-4 mx-10 p-4  border-gray-300 rounded">
+        <div className="mb-4 mx-10 p-4 border-gray-300 rounded">
           <h2 className="text-xl font-semibold mb-2">Basic Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input type="text" name="city" placeholder="City" value={formData.city} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
@@ -247,7 +273,6 @@ const AddPropertyPage = () => {
           </div>
         </div>
 
-       
         <div className="mb-4 p-4 mx-10">
           <h2 className="text-xl font-semibold mb-2">Location</h2>
           <MapContainer center={markerPosition} zoom={10} style={{ height: "400px", width: "100%" }} className="mb-4">
@@ -291,38 +316,44 @@ const AddPropertyPage = () => {
               <option value="rent">For Rent</option>
             </select>
 
-            <select name="amenities" value={formData.amenities} onChange={handleChange} multiple className="w-full p-2 border border-gray-300 rounded">
+             <select name="amenities" value={formData.amenities} onChange={handleChange} multiple className="w-full p-2 border border-gray-300 rounded">
               {AMENITIES_CHOICES.map((amenity) => (
                 <option key={amenity.value} value={amenity.value}>{amenity.label}</option>
               ))}
-            </select>
+            </select> 
             <select name="tags" value={formData.tags} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
-              <option value="">Select Tags</option>
+              <option value="">Select Tag</option>
               {TAG_CHOICES.map((tag) => (
                 <option key={tag.value} value={tag.value}>{tag.label}</option>
               ))}
             </select>
             <select name="property_type" value={formData.property_type} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded">
-              <option value="">Property Type</option>
+              <option value="">Select Property Type</option>
               <option value="house">House</option>
               <option value="apartment">Apartment</option>
-              <option value="condo">Condo</option>
               <option value="land">Land</option>
+              <option value="commercial">Commercial</option>
             </select>
-           
           </div>
         </div>
 
         <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
-          <h2 className="text-xl font-semibold mb-2">Images & Documents</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="file" name="photos" onChange={handleChange} multiple accept="image/*" className="w-full p-2 border border-gray-300 rounded" />
-            <input type="file" name="documents" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
-          </div>
+          <h2 className="text-xl font-semibold mb-2">Photos</h2>
+          <input type="file" name="photo_main" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+          <input type="file" name="photos" onChange={handleChange} multiple className="w-full p-2 border border-gray-300 rounded" />
         </div>
 
-        <input type="hidden" name="realtor" value={formData.realtor} />
-        <input type="hidden" name="owner" value={formData.owner} />
+        <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
+          <h2 className="text-xl font-semibold mb-2">Documents</h2>
+          <input type="file" name="documents" onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+        </div>
+
+        <div className="mb-4 p-4 mx-10 border-gray-300 rounded">
+          <h2 className="text-xl font-semibold mb-2">Realtor and Owner</h2>
+          <input type="number" name="realtor" placeholder="Realtor ID" value={formData.realtor} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+          <input type="number" name="owner" placeholder="Owner ID" value={formData.owner} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded" />
+        </div>
+
         <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">Add Property</button>
       </form>
     </div>

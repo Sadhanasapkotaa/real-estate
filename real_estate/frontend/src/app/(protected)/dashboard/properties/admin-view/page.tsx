@@ -4,6 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Pie, Bar, Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement } from 'chart.js';
+import withAuth from '../../../../../hoc/withAuth';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement);
 
@@ -321,4 +322,4 @@ const PropertiesPage = () => {
   );
 };  
 
-export default PropertiesPage;
+export default withAuth(PropertiesPage);

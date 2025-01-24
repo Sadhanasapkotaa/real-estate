@@ -13,6 +13,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     password_confirm: '',
+    roles: JSON.stringify(['buyer', 'seller']),
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +52,7 @@ export default function SignupPage() {
         last_name: formData.last_name,
         password: formData.password,
         password2: formData.password_confirm,
+        roles: formData.roles,
       });
       if (response.status === 201) {
         toast.success('Signup successful! Redirecting to verify email...');
@@ -94,6 +96,7 @@ export default function SignupPage() {
                 {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
               </div>
             ))}
+            <input type="hidden" name="roles" value={formData.roles} />
             <div className="flex items-center">
               <input
                 type="checkbox"

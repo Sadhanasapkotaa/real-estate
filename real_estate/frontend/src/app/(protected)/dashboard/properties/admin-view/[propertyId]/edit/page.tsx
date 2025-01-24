@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
+import withAuth from '../../../../../../hoc/withAuth';
 
 // Create a custom icon
 const customIcon = new L.Icon({
@@ -235,4 +236,4 @@ const EditPropertyPage = () => {
   );
 };
 
-export default EditPropertyPage;
+export default withAuth(EditPropertyPage);

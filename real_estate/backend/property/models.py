@@ -123,7 +123,7 @@ class Property(models.Model):
     title = models.CharField(max_length=200, verbose_name="Property Title")
     description = models.TextField(verbose_name="Property Description")
     map_link = models.TextField(verbose_name="Property Map")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, verbose_name="Property Status")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unapproved', verbose_name="Property Status")
     province = models.CharField(max_length=20, verbose_name="Province")
     district = models.CharField(max_length=50, choices=DISTRICT_CHOICES, verbose_name="District")
     city = models.CharField(max_length=100, verbose_name="City")

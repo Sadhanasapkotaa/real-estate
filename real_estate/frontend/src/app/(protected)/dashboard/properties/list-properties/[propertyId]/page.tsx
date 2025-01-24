@@ -18,6 +18,7 @@ import {
   AttachMoneyOutlined,
   Security,
 } from '@mui/icons-material';
+import withAuth from '../../../../../hoc/withAuth';
 
 interface Property {
   title: string;
@@ -287,4 +288,4 @@ const DetailItem = ({ icon, label, value }) => (
   </div>
 );
 
-export default PropertyPage;
+export default withAuth(PropertyPage);

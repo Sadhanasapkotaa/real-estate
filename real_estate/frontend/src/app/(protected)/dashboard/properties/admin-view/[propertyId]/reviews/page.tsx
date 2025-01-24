@@ -1,4 +1,5 @@
 import React from 'react'
+import withAuth from '../../../../../../hoc/withAuth'
 
 const page = () => {
   return (
@@ -8,4 +9,4 @@ const page = () => {
   )
 }
 
-export default page
+export default withAuth(page)

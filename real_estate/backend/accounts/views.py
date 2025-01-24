@@ -20,16 +20,20 @@ class RegisterUserView(GenericAPIView):
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            user = serializer.data
-            send_code_to_user(user['email'], None)  # Pass None for OTP as it is generated in the utility function
-            return Response({
-                'data': user,
-                'message': 'Hi, User created successfully. Check your email to verify your account',
-                },
-                status=status.HTTP_201_CREATED
-            )
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                user = serializer.data
+                send_code_to_user(user['email'], None)  # Pass None for OTP as it is generated in the utility function
+                return Response({
+                    'data': user,
+                    'message': 'Hi, User created successfully. Check your email to verify your account',
+                    },
+                    status=status.HTTP_201_CREATED
+                )
+        except Exception as e:
+            logging.error(f"Exception: {e}")
+            return Response({'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
@@ -60,6 +64,9 @@ class VerifyUserEmail(GenericAPIView):
                 {
                     'message': 'Invalid OTP',
                 }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logging.error(f"Exception: {e}")
+            return Response({'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginUserView(GenericAPIView):
@@ -71,17 +78,21 @@ class LoginUserView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         
-        if not user.is_verified:
+        try:
+            if not user.is_verified:
+                return Response({
+                    'message': 'Email not verified. Please check your email for the verification code.',
+                    'redirect': '/verify'
+                }, status=status.HTTP_403_FORBIDDEN)
+            
+            refresh = RefreshToken.for_user(user)
             return Response({
-                'message': 'Email not verified. Please check your email for the verification code.',
-                'redirect': '/verify'
-            }, status=status.HTTP_403_FORBIDDEN)
-        
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
-        }, status=status.HTTP_200_OK)
+                'access': str(refresh.access_token),
+                'refresh': str(refresh),
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logging.error(f"Exception: {e}")
+            return Response({'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TestAuthenticationView(GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -95,12 +106,16 @@ class PasswordResetRequestView(GenericAPIView):
     serializer_class = PasswordResetRequestSerializer
     def post(self, request):
         serializer = self.serializer_class(data=request.data, context={'request': request})
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(
-                {
-                    'message': 'Password reset link has been sent to your email',
-                }, status=status.HTTP_200_OK)
+        try:
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(
+                    {
+                        'message': 'Password reset link has been sent to your email',
+                    }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logging.error(f"Exception: {e}")
+            return Response({'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -169,20 +184,19 @@ class SetNewPassword(GenericAPIView):
 
     def patch(self, request):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            try:
+        try:
+            if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(
                     {
                         'message': 'Password reset successful',
                     }, status=status.HTTP_200_OK)
-            except Exception as e:
-                logging.error(f"Exception: {e}")
-                return Response(
-                    {
-                        'message': 'Internal server error',
-                    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+        except Exception as e:
+            logging.error(f"Exception: {e}")
+            return Response(
+                {
+                    'message': 'Internal server error',
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutUserView(GenericAPIView):
@@ -196,6 +210,8 @@ class LogoutUserView(GenericAPIView):
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
+        except TokenError:
+            return Response({'message': 'Token is invalid or has expired'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             logging.error(f"Exception: {e}")
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

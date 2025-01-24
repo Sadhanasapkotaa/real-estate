@@ -90,7 +90,11 @@ class PasswordResetRequestSerializer(serializers.Serializer):
             "email_subject": "Reset your password for RentMySpace"
         }
 
-        send_normal_email(data)
+        try:
+            send_normal_email(data)
+        except Exception as e:
+            logging.error(f"Exception: {e}")
+            raise serializers.ValidationError("Failed to send email")
 
 class NewPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=68, min_length=6, write_only=True)

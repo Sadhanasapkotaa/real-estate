@@ -8,7 +8,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 AUTH_PROVIDERS = {'email':'email', 'google':'google', 'github':'github', 'facebook':'facebook'}
 
-class User( AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True, verbose_name=_("email address"))
     first_name = models.CharField(max_length=255, verbose_name=_("first name"))
     last_name = models.CharField(max_length=255, verbose_name=_("last name"))
@@ -29,7 +29,7 @@ class User( AbstractBaseUser, PermissionsMixin):
         ('admin', 'Admin'),
         ('developer', 'Developer'),
     ]
-    role = models.JSONField(default=lambda: ['buyer', 'seller'])  # Default roles
+    role = models.JSONField(default=list)  # Default roles as an empty list
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
 

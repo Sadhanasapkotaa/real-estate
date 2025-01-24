@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { FaBed, FaBath, FaRulerCombined, FaBuilding, FaTag } from 'react-icons/fa';
+import withAuth from '../../../../hoc/withAuth';
 
 interface Property {
   id: number;
@@ -76,4 +77,4 @@ const PropertiesPage = () => {
   );
 };
 
-export default PropertiesPage;
+export default withAuth(PropertiesPage);

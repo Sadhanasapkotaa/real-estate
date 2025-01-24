@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'next/navigation';
+import withAuth from '../../../../../../hoc/withAuth';
 
 interface Negotiation {
   id: number;
@@ -98,4 +99,4 @@ const NegotiationsPage = () => {
   );
 };
 
-export default NegotiationsPage;
+export default withAuth(NegotiationsPage);

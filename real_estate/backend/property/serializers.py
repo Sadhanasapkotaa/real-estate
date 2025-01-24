@@ -14,7 +14,13 @@ class DynamicFieldsModelSerializer(serializers.ModelSerializer):
 class PropertySerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Property
-        fields = '__all__'
+        exclude = ['id']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if 'file_field' in self.fields:
+            representation['file_field'] = instance.file_field.url if instance.file_field else None
+        return representation
 
 class RealtorSerializer(DynamicFieldsModelSerializer):
     class Meta:
