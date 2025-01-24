@@ -13,6 +13,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     password_confirm: '',
+    role: ['buyer', 'seller'], // Default roles
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +52,7 @@ export default function SignupPage() {
         last_name: formData.last_name,
         password: formData.password,
         password2: formData.password_confirm,
+        role: formData.role,
       });
       if (response.status === 201) {
         toast.success('Signup successful! Redirecting to verify email...');
@@ -60,11 +62,10 @@ export default function SignupPage() {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           console.error('Error response data:', error.response.data);
-          if ((error.response as AxiosResponse).status === 404) {
-            toast.error('API endpoint not found. Please check the URL.');
-          }
+          toast.error(`Signup failed: ${error.response.data.detail || 'Please try again.'}`);
         } else {
           console.error('Error response is undefined');
+          toast.error('Signup failed. Please try again.');
         }
       } else {
         console.error('Error during registration:', error);
@@ -94,6 +95,7 @@ export default function SignupPage() {
                 {errors[field] && <p className="text-red-500 text-xs mt-1">{errors[field]}</p>}
               </div>
             ))}
+            <input type="hidden" name="role" value={JSON.stringify(formData.role)} />
             <div className="flex items-center">
               <input
                 type="checkbox"

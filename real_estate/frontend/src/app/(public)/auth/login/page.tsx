@@ -1,9 +1,10 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // Changed from 'next/router'
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { api } from '../../../api'; // Import the axios instance
+import axios from 'axios'; // Import axios
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -13,6 +14,10 @@ export default function Login() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Client-side only code
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -38,7 +43,7 @@ export default function Login() {
       return;
     }
     try {
-      const response = await api.post('/auth/login/', formData);
+      const response = await api.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/login/', formData);
       if (response.status === 200) {
         const { access, refresh } = response.data;
         localStorage.setItem('accessToken', access);
@@ -47,8 +52,22 @@ export default function Login() {
         router.push('/dashboard');
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      toast.error('Login failed. Please try again.');
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          console.error('Error response data:', error.response.data);
+          toast.error(`Login failed: ${error.response.data.detail || 'Please try again.'}`);
+        } else {
+          console.error('Error response is undefined');
+          toast.error('Login failed. Please try again.');
+        }
+      } else {
+        console.error('Error during login:', error);
+        toast.error('Login failed. Please try again.');
+      }
+      if (error.response && error.response.status === 500) {
+        console.error('Internal Server Error:', error.response.data);
+        toast.error('Internal Server Error. Please try again later.');
+      }
     }
   };
 

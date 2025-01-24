@@ -1,14 +1,16 @@
+"use client";
 import Services from './Services';
 import Gallery from './Gallery';
 import FAQ from './FAQ';
 import Footer from './Footer';
 import ClientCarousel from './ClientCarousel';
-import ClientHeaderWebsite from './ClientHeaderWebsite';
+import HeaderWebsite from './HeaderWebsite';
 
 export default function Home() {
   return (
     <div>
-      <ClientHeaderWebsite />
+      {/* ClientHeaderWebsite is server-side rendered (SSR) */}
+      <HeaderWebsite />
       <ClientCarousel />
       <Services />
       <Gallery />

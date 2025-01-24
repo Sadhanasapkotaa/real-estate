@@ -29,7 +29,7 @@ class User( AbstractBaseUser, PermissionsMixin):
         ('admin', 'Admin'),
         ('developer', 'Developer'),
     ]
-    role = models.JSONField(default=lambda: ['buyer', 'seller'])  # Default roles
+    role = models.CharField(max_length=255, null=True, blank=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name"]
 

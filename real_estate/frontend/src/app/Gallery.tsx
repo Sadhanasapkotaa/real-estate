@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const images = [
   'https://media.istockphoto.com/id/1269776313/photo/suburban-house.webp?a=1&b=1&s=612x612&w=0&k=20&c=2aCYwO-u41uuBubb5KQ48GbCpJkDowSL7SlvLgzjknQ=',
@@ -17,6 +17,15 @@ const images = [
 
 const Gallery: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null;
+  }
 
   const startSlideshow = (index: number) => {
     setCurrentIndex(index);

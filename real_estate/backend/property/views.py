@@ -1,9 +1,12 @@
+import logging
 from rest_framework import viewsets
 from .models import Property, Realtor, Negotiation, Review, Complaint
 from .serializers import PropertySerializer, RealtorSerializer, NegotiationSerializer, ReviewSerializer, ComplaintSerializer
 from django.core.mail import EmailMessage
 from django.conf import settings
 from .utils import send_status_change_email
+
+logger = logging.getLogger(__name__)
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
@@ -22,6 +25,15 @@ class PropertyViewSet(viewsets.ModelViewSet):
         final_status = serializer.validated_data.get('status', instance.status)
         if initial_status != final_status:
             send_status_change_email(instance.owner.email, initial_status, final_status)
+
+    def perform_create(self, serializer):
+        try:
+            logger.info("Creating property with data: %s", serializer.validated_data)
+            instance = serializer.save()
+            logger.info("Property created successfully: %s", instance)
+        except Exception as e:
+            logger.error("Error creating property: %s", str(e))
+            raise
 
 class RealtorViewSet(viewsets.ModelViewSet):
     queryset = Realtor.objects.all()

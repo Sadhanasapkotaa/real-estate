@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter';
 import BuildIcon from '@mui/icons-material/Build';
@@ -9,29 +9,39 @@ const services = [
         title: 'Property Listings',
         description:
             'Explore a wide range of properties available for sale or rent. Find your dream home or the perfect investment property.',
-        icon: <HomeIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
+        icon: () => <HomeIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
     {
         title: 'Real Estate Consulting',
         description:
             'Receive expert advice from our real estate professionals to help you make the right decisions for your investments.',
-        icon: <BusinessCenterIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
+        icon: () => <BusinessCenterIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
     {
         title: 'Property Management',
         description:
             'Our property management services ensure that your properties are taken care of efficiently, maximizing your returns.',
-        icon: <BuildIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
+        icon: () => <BuildIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
     {
         title: 'Mortgage Assistance',
         description:
             'Get help finding the best mortgage rates and financial advice to secure the home of your dreams.',
-        icon: <CreditCardIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
+        icon: () => <CreditCardIcon style={{ fontSize: 40, color: '#3b82f6' }} />,
     },
 ];
 
 const Services = () => {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) {
+        return null;
+    }
+
     return (
         <section className="bg-white py-8 md:py-16 px-4 md:px-8">
             {/* Page Header */}
@@ -51,7 +61,7 @@ const Services = () => {
                         key={index}
                         className="sm:m-5 md:m-0 border border-blue-300 bg-white shadow-lg rounded-lg p-6 md:p-7 hover:shadow-2xl transition duration-300 transform hover:scale-105 h-auto"
                     >
-                        <div className="text-4xl md:text-6xl mb-4 text-blue-500">{service.icon}</div>
+                        <div className="text-4xl md:text-6xl mb-4 text-blue-500">{service.icon()}</div>
                         <h3 className="text-xl md:text-2xl font-semibold text-black mb-3">
                             {service.title}
                         </h3>

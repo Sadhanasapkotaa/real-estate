@@ -192,7 +192,13 @@ const AddPropertyPage = () => {
         }
       });
 
-      const response = await fetch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/properties/', {
+      // Ensure owner and realtor values remain as 1
+      formDataToSend.set('owner', '1');
+      formDataToSend.set('realtor', '1');
+
+      console.log('Submitting form data:', formDataToSend);
+
+      const response = await fetch('/api/properties/', {
         method: 'POST',
         body: formDataToSend,
       });
