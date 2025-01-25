@@ -1,19 +1,20 @@
+"use client";
 import Services from './Services';
 import Gallery from './Gallery';
 import FAQ from './FAQ';
 import Footer from './Footer';
 import ClientCarousel from './ClientCarousel';
-import ClientHeaderWebsite from './ClientHeaderWebsite';
+import HeaderWebsite from './HeaderWebsite';
 
 export default function Home() {
   return (
     <div>
-      <ClientHeaderWebsite />
-      <ClientCarousel />
-      <Services />
-      <Gallery />
-      <FAQ />
-      <Footer />
+      <HeaderWebsite key="header" />
+      <ClientCarousel key="carousel" />
+      <Services key="services" />
+      <Gallery key="gallery" />
+      <FAQ key="faq" />
+      <Footer key="footer" />
     </div>
   );
 }
