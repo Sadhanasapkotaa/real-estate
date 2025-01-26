@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import axios from 'axios';
+import withAuth from '../../../../hoc/withAuth'; // Adjust the import path as needed
 
 const AddSupplier = () => {
     const [formData, setFormData] = useState({
@@ -175,4 +176,4 @@ const AddSupplier = () => {
     );
 };
 
-export default AddSupplier;
+export default withAuth(AddSupplier);

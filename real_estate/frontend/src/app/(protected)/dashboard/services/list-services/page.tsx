@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import withAuth from '../../../../hoc/withAuth'; // Adjust the import path as needed
 
 const ServicesPage = () => {
   const [services, setServices] = useState([]);
@@ -34,4 +35,4 @@ const ServicesPage = () => {
   );
 }
 
-export default ServicesPage;
+export default withAuth(ServicesPage);

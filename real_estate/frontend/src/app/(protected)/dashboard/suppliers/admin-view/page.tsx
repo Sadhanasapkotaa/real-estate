@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import withAuth from '../../../../hoc/withAuth'; // Adjust the import path as needed
 
 const SupplierList = () => {
     const [suppliers, setSuppliers] = useState([]);
@@ -76,4 +77,4 @@ const SupplierList = () => {
     );
 };
 
-export default SupplierList;
+export default withAuth(SupplierList);

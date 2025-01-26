@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import withAuth from '../../../../hoc/withAuth';
 
 const AddMaterials = () => {
     const [formData, setFormData] = useState({
@@ -86,4 +87,4 @@ const AddMaterials = () => {
     );
 };
 
-export default AddMaterials;
+export default withAuth(AddMaterials);

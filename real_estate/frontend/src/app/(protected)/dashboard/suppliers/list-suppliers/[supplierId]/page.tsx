@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import withAuth from '../../../../../hoc/withAuth'; // Adjust the import path as needed
 
 const SupplierDetails = () => {
   const router = useRouter();
@@ -30,4 +31,4 @@ const SupplierDetails = () => {
   );
 };
 
-export default SupplierDetails;
+export default withAuth(SupplierDetails);

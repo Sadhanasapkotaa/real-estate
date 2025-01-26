@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useRouter } from 'next/router';
+import withAuth from '../../../../../../hoc/withAuth';
 
 const MaterialsAdminView = () => {
     const [materials, setMaterials] = useState([]);
@@ -55,4 +57,4 @@ const MaterialsAdminView = () => {
     );
 };
 
-export default MaterialsAdminView;
+export default withAuth(MaterialsAdminView);

@@ -30,4 +30,4 @@ const MaterialsList = () => {
   );
 };
 
-export default MaterialsList;
+export default withAuth(MaterialsList);

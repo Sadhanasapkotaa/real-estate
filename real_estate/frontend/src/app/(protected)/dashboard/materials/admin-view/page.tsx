@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useHistory } from 'react-router-dom';
+import withAuth from '../../../../hoc/withAuth';
 
 const EditMaterial = () => {
     const { id } = useParams();
@@ -103,4 +104,4 @@ const EditMaterial = () => {
     );
 };
 
-export default EditMaterial;
+export default withAuth(EditMaterial);

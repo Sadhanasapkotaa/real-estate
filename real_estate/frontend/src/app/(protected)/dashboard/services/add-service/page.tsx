@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import axios from 'axios';
+import withAuth from '../../../../hoc/withAuth'; // Adjust the import path as needed
 
 const AddServicePage = () => {
   const [formData, setFormData] = useState({
@@ -105,4 +106,4 @@ const AddServicePage = () => {
   );
 }
 
-export default AddServicePage;
+export default withAuth(AddServicePage);
