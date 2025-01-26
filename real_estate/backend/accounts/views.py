@@ -89,6 +89,9 @@ class LoginUserView(GenericAPIView):
             return Response({
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),
+                'id': user.id,
+                'email': user.email,
+                'full_name': user.get_full_name,
             }, status=status.HTTP_200_OK)
         except Exception as e:
             logging.error(f"Exception: {e}")
