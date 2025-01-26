@@ -45,6 +45,8 @@ export default function Login() {
         Object.entries(userData).forEach(([key, value]) => {
           localStorage.setItem(key, String(value));
         });
+        // Store user role in localStorage
+        localStorage.setItem('role', userData.role);
         
         toast.success('Login successful! Redirecting to dashboard...');
         router.push('/dashboard');
