@@ -8,6 +8,8 @@ import withAuth from '../../hoc/withAuth'; // Corrected import path
 const ProfilePage = () => {
   const router = useRouter();
   const [user, setUser] = useState({ full_name: '', email: '', role: [] });
+  const [newRole, setNewRole] = useState('');
+  const [roleToRemove, setRoleToRemove] = useState('');
 
   useEffect(() => {
     const fetchUserData = () => {
@@ -34,7 +36,7 @@ const ProfilePage = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/logout', {}, { withCredentials: true }); // Ensure cookies are sent
+      await axios.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/logout/', {}, { withCredentials: true }); // Ensure cookies are sent
       localStorage.removeItem('accessToken'); // Clear access token
       localStorage.removeItem('refreshToken'); // Clear refresh token
       localStorage.removeItem('user'); // Clear user data
@@ -46,6 +48,60 @@ const ProfilePage = () => {
       console.error('Error during logout:', error);
     }
   };
+
+  const handleAddRole = async () => {
+    if (newRole.toLowerCase() === 'admin') {
+      alert('Admin cannot be added as a role');
+      return;
+    }
+
+    if (newRole && !user.role.includes(newRole)) {
+      const updatedRoles = [...user.role, newRole];
+      setUser({ ...user, role: updatedRoles });
+      localStorage.setItem('user', JSON.stringify({ ...user, role: updatedRoles }));
+      localStorage.setItem('role', updatedRoles.join(','));
+      setNewRole('');
+
+      try {
+        const accessToken = localStorage.getItem('accessToken');
+        await axios.patch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/update-role/', { role: updatedRoles }, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        });
+      } catch (error) {
+        console.error('Error updating role:', error);
+      }
+    }
+  };
+
+  const handleRemoveRole = async () => {
+    if (roleToRemove.toLowerCase() === 'admin') {
+      alert('Admin cannot be removed as a role');
+      return;
+    }
+
+    const updatedRoles = user.role.filter(role => role !== roleToRemove);
+    setUser({ ...user, role: updatedRoles });
+    localStorage.setItem('user', JSON.stringify({ ...user, role: updatedRoles }));
+    localStorage.setItem('role', updatedRoles.join(','));
+
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      await axios.patch('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/update-role/', { role: updatedRoles }, {
+        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      setRoleToRemove('');
+    } catch (error) {
+      console.error('Error removing role:', error);
+    }
+  };
+
+  const hasRemovableRoles = user.role.some(role => role !== 'buyer' && role !== 'seller');
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -59,6 +115,31 @@ const ProfilePage = () => {
             <p className="text-lg"><strong>Email:</strong> {user.email}</p>
             <p className="text-lg"><strong>Roles:</strong> {user.role.join(', ')}</p>
           </div>
+          <div className="mb-6">
+            <select value={newRole} onChange={(e) => setNewRole(e.target.value)} className="border p-2 rounded-lg">
+              <option value="">Select a role</option>
+              <option value="supplier">Supplier</option>
+              <option value="service">Service</option>
+              <option value="investor">Investor</option>
+              <option value="developer">Developer</option>
+            </select>
+            <button onClick={handleAddRole} className="ml-2 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+              Add Role
+            </button>
+          </div>
+          {hasRemovableRoles && (
+            <div className="mb-6">
+              <select value={roleToRemove} onChange={(e) => setRoleToRemove(e.target.value)} className="border p-2 rounded-lg">
+                <option value="">Select a role to remove</option>
+                {user.role.filter(role => role !== 'buyer' && role !== 'seller').map((role, index) => (
+                  <option key={index} value={role}>{role}</option>
+                ))}
+              </select>
+              <button onClick={handleRemoveRole} className="ml-2 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
+                Remove Role
+              </button>
+            </div>
+          )}
           <button onClick={handleLogout} className="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600">
             Logout
           </button>

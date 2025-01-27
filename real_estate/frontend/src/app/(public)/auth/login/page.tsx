@@ -38,7 +38,7 @@ export default function Login() {
       return;
     }
     try {
-      const response = await api.post('/auth/login/', formData);
+      const response = await api.post('https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/v1/auth/login/', formData); // Updated URL
       if (response.status === 200) {
         // Store all user data in localStorage
         const userData = response.data;
@@ -52,8 +52,12 @@ export default function Login() {
         router.push('/dashboard');
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      toast.error('Login failed. Please try again.');
+      if (error.response && error.response.status === 404) {
+        toast.error('Login failed. Endpoint not found.');
+      } else {
+        console.error('Error during login:', error);
+        toast.error('Login failed. Please try again.');
+      }
     }
   };
 

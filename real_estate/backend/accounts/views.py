@@ -11,6 +11,9 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.exceptions import TokenError
 
 # Create your views here.
 
@@ -219,3 +222,17 @@ class LogoutUserView(GenericAPIView):
         except Exception as e:
             logging.error(f"Exception: {e}")
             return Response({'message': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UpdateUserRoleView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def patch(self, request):
+        user = request.user
+        new_roles = request.data.get('role', [])
+        if not isinstance(new_roles, list):
+            return Response({'message': 'Roles must be a list'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.role = new_roles
+        user.save()
+        return Response({'message': 'Roles updated successfully'}, status=status.HTTP_200_OK)
