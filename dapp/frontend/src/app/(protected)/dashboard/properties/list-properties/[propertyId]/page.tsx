@@ -11,7 +11,10 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import React360Viewer from 'react-360-view';
-import { FaBed, FaBath, FaRulerCombined, FaMapMarkerAlt, FaTags, FaBuilding, FaCalendarAlt, FaLayerGroup, FaCity, FaDollarSign, FaShieldAlt } from 'react-icons/fa';
+import { FaBed, FaBath, FaRulerCombined, FaMapMarkerAlt, FaTags, FaBuilding, FaCalendarAlt, FaLayerGroup, FaCity, FaDollarSign, FaShieldAlt, FaChevronLeft, FaChevronRight, FaHome, FaWarehouse, FaStore, FaIndustry, FaLandmark, FaParking, FaSwimmingPool, FaWifi, FaDumbbell, FaSnowflake, FaTree, FaCamera, FaLock, FaHandsWash, FaCar, FaUtensils, FaTv, FaCouch } from 'react-icons/fa';
+import { MdBalcony, MdSecurity, MdPets, MdLocalLaundryService } from 'react-icons/md';
+import { GiGardeningShears, GiFireplace } from 'react-icons/gi';
+import { BsThermometerHigh } from 'react-icons/bs';
 import withAuth from '../../../../../hoc/withAuth';
 import { ethers } from 'ethers';
 import { Web3Provider } from '@ethersproject/providers';
@@ -45,6 +48,77 @@ interface Property {
   owner: string;
 }
 
+const MortgageCalculator = ({ propertyPrice }: { propertyPrice: number }) => {
+  const [interestRate, setInterestRate] = useState(5);
+  const [loanTerm, setLoanTerm] = useState(30);
+  
+  const calculateMonthlyPayment = () => {
+    const principal = propertyPrice;
+    const monthlyRate = (interestRate / 100) / 12;
+    const numberOfPayments = loanTerm * 12;
+    
+    const monthlyPayment = principal * 
+      (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
+      (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+      
+    return isNaN(monthlyPayment) ? 0 : monthlyPayment;
+  };
+
+  const monthlyPayment = calculateMonthlyPayment();
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+      <h3 className="text-lg font-semibold mb-4">Mortgage Calculator</h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Property Price
+          </label>
+          <input
+            type="text"
+            value={`$${propertyPrice.toLocaleString()}`}
+            disabled
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Interest Rate (%)
+          </label>
+          <input
+            type="number"
+            value={interestRate}
+            onChange={(e) => setInterestRate(Number(e.target.value))}
+            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            min="0"
+            max="100"
+            step="0.1"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Loan Term (years)
+          </label>
+          <input
+            type="number"
+            value={loanTerm}
+            onChange={(e) => setLoanTerm(Number(e.target.value))}
+            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+            min="1"
+            max="50"
+          />
+        </div>
+        <div className="mt-4 p-4 bg-blue-50 rounded-xl">
+          <p className="text-sm text-gray-600 mb-1">Estimated Monthly Payment</p>
+          <p className="text-2xl font-bold text-blue-600">
+            ${monthlyPayment.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const PropertyPage = () => {
   const { propertyId } = useParams();
   const [property, setProperty] = useState<Property | null>(null);
@@ -52,6 +126,7 @@ const PropertyPage = () => {
   const [showNegotiationForm, setShowNegotiationForm] = useState(false);
   const [counterPrice, setCounterPrice] = useState<number | null>(null);
   const [negotiationDescription, setNegotiationDescription] = useState<string>('');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     if (propertyId) {
@@ -125,25 +200,55 @@ const PropertyPage = () => {
 
   const handleSubmitNegotiation = () => {
     if (propertyId && counterPrice && negotiationDescription) {
-      axios.post(`https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/negotiations/`, {
-        property: propertyId,
-        owner: property?.owner,
-        user: '16', // Replace with the actual user ID
-        negotiated_price: counterPrice,
-        negotiation_reason: negotiationDescription,
-      })
+      // Get the auth token from localStorage
+      const token = localStorage.getItem('access');
+      
+      if (!token) {
+        alert('Please login to submit a negotiation');
+        return;
+      }
+
+      axios.post(
+        `https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/api/negotiations/`,
+        {
+          property: propertyId,
+          owner: property?.owner,
+          user: '16', // Replace with the actual user ID
+          negotiated_price: counterPrice,
+          negotiation_reason: negotiationDescription,
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      )
         .then(response => {
           alert('Negotiation submitted successfully!');
           setShowNegotiationForm(false);
+          setCounterPrice(null);
+          setNegotiationDescription('');
         })
-        .catch(error => console.error('Error submitting negotiation:', error));
+        .catch(error => {
+          console.error('Error submitting negotiation:', error);
+          if (error.response?.status === 401) {
+            alert('Your session has expired. Please login again.');
+            // Optionally redirect to login page or refresh token
+          } else {
+            alert('Failed to submit negotiation. Please try again.');
+          }
+        });
     }
   };
 
   if (!property) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="text-gray-500">Loading property details...</p>
+        </div>
       </div>
     );
   }
@@ -157,146 +262,287 @@ const PropertyPage = () => {
     property.photo_5,
   ].filter(Boolean);
 
+  const getPropertyTypeIcon = (type: string) => {
+    const types = {
+      house: <FaHome className="w-6 h-6" />,
+      apartment: <FaBuilding className="w-6 h-6" />,
+      commercial: <FaStore className="w-6 h-6" />,
+      industrial: <FaIndustry className="w-6 h-6" />,
+      land: <FaLandmark className="w-6 h-6" />,
+      warehouse: <FaWarehouse className="w-6 h-6" />,
+    };
+    return types[type.toLowerCase()] || <FaHome className="w-6 h-6" />;
+  };
+
+  const getAmenityIcon = (amenity: string) => {
+    const amenityMap = {
+      parking: <FaParking />,
+      pool: <FaSwimmingPool />,
+      wifi: <FaWifi />,
+      gym: <FaDumbbell />,
+      air_conditioning: <FaSnowflake />,
+      heating: <BsThermometerHigh />,
+      garden: <GiGardeningShears />,
+      security: <MdSecurity />,
+      cctv: <FaCamera />,
+      intercom: <FaLock />,
+      laundry: <MdLocalLaundryService />,
+      parking_space: <FaCar />,
+      balcony: <MdBalcony />,
+      fireplace: <GiFireplace />,
+      pets_allowed: <MdPets />,
+      furnished: <FaCouch />,
+      kitchen: <FaUtensils />,
+      tv: <FaTv />,
+      garden_view: <FaTree />
+    };
+    return amenityMap[amenity.toLowerCase().replace(/ /g, '_')] || <FaShieldAlt />;
+  };
+
   return (
-    <div className="container mx-auto px-4 py-8 bg-gray-50">
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        {/* Main Image Gallery */}
-        <div className="relative h-[600px] flex">
-          <div className="w-2/3 relative">
-            <Image
-              src={activeImage || property.photo_main}
-              alt={property.title}
-              layout="fill"
-              objectFit="cover"
-              className="transition-all duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            <div className="absolute bottom-6 left-6 text-white">
-              <h1 className="text-4xl font-bold mb-2">{property.title}</h1>
-              <div className="flex items-center gap-2">
-                <FaMapMarkerAlt />
-                <span>{`${property.city}, ${property.province}`}</span>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header Section with Property Type */}
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-4xl font-bold text-gray-900">{property.title}</h1>
+              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                {getPropertyTypeIcon(property.property_type)}
+                {property.property_type}
+              </span>
             </div>
-            <div className="absolute top-6 right-6 bg-white/90 px-4 py-2 rounded-full">
-              <span className="text-2xl font-bold text-gray-900">${property.price.toLocaleString()}</span>
+            <div className="flex items-center gap-2 text-gray-600">
+              <FaMapMarkerAlt className="text-blue-500" />
+              <span className="text-lg">{`${property.city}, ${property.province}`}</span>
             </div>
           </div>
-          <div className="w-1/3 flex flex-col items-start justify-center p-4">
-            {/* Description */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Description</h2>
-              <p className="text-gray-600 leading-relaxed">{property.description}</p>
-            </div>
-            {/* Quick Info */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <InfoCard icon={<FaBed />} label="Bedrooms" value={property.bed} />
-              <InfoCard icon={<FaBath />} label="Bathrooms" value={property.bath} />
-              <InfoCard icon={<FaRulerCombined />} label="Area" value={`${property.area} sq ft`} />
-              <InfoCard icon={<FaBuilding />} label="Floors" value={property.total_floors} />
-            </div>
-            <div className="flex gap-4">
-              <button onClick={handleBookHouse} className="bg-blue-500 w-full text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition-all">
-                Book Immediately
-              </button>
-              <button onClick={handleNegotiate} className="bg-yellow-500 w-full text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition-all">
-                Negotiate
-              </button>
-            </div>
-            {showNegotiationForm && (
-              <div className="mt-4 bg-gray-100 p-4 rounded-lg shadow-md">
-                <h3 className="text-xl font-bold mb-2">Negotiate</h3>
-                <div className="mb-2">
-                  <label className="block text-gray-700">Counter Price</label>
-                  <input
-                    type="number"
-                    value={counterPrice || ''}
-                    onChange={(e) => setCounterPrice(Number(e.target.value))}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-                <div className="mb-2">
-                  <label className="block text-gray-700">Description</label>
-                  <textarea
-                    value={negotiationDescription}
-                    onChange={(e) => setNegotiationDescription(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
-                  />
-                </div>
-                <button onClick={handleSubmitNegotiation} className="bg-green-500 w-full text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition-all">
-                  Submit Negotiation
-                </button>
-              </div>
-            )}
+          <div className="bg-white px-6 py-3 rounded-xl shadow-sm">
+            <p className="text-gray-500 text-sm mb-1">Price</p>
+            <p className="text-3xl font-bold text-blue-600">${property.price.toLocaleString()}</p>
           </div>
         </div>
 
-        {/* Thumbnail Gallery */}
-        <div className="grid grid-cols-6 p-2 bg-gray-100 w-1/2">
-          {allPhotos.map((photo, index) => (
-            <div
-              key={index}
-              className={`relative h-20 w-20 cursor-pointer rounded-lg overflow-hidden transition-all 
-                ${activeImage === photo ? 'ring-2 ring-blue-500' : 'opacity-70 hover:opacity-100'}`}
-              onClick={() => setActiveImage(photo)}
-            >
-              <Image src={photo} alt={`View ${index + 1}`} layout="fill" objectFit="cover" />
-            </div>
-          ))}
-        </div>
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2">
+            {/* Image Gallery */}
+            <div className="relative h-[600px] rounded-2xl overflow-hidden group">
+              <Image
+                src={allPhotos[activeImageIndex]}
+                alt={property.title}
+                layout="fill"
+                objectFit="cover"
+                className="transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              
+              {/* Navigation Arrows */}
+              <button
+                onClick={() => setActiveImageIndex((prev) => (prev - 1 + allPhotos.length) % allPhotos.length)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"
+              >
+                <FaChevronLeft className="text-gray-800 text-xl" />
+              </button>
+              <button
+                onClick={() => setActiveImageIndex((prev) => (prev + 1) % allPhotos.length)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"
+              >
+                <FaChevronRight className="text-gray-800 text-xl" />
+              </button>
 
-        <div className="p-8">
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Property Details */}
-            <div className="bg-gray-50 p-6 rounded-xl">
-              <h2 className="text-2xl font-bold mb-4">Property Details</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <DetailItem icon={<FaTags />} label="Status" value={property.status} />
-                <DetailItem icon={<FaBuilding />} label="Type" value={property.property_type} />
-                <DetailItem icon={<FaCalendarAlt />} label="Year Built" value={property.year_built} />
-                <DetailItem icon={<FaLayerGroup />} label="Floor" value={property.floor_number} />
-                <DetailItem icon={<FaCity />} label="District" value={property.district} />
-                <DetailItem icon={<FaDollarSign />} label="Purpose" value={property.sale_or_rent} />
-                <DetailItem icon={<FaTags />} label="Negotiation Count" value={property.negotiation_count} />
-                <DetailItem icon={<FaDollarSign />} label="Average Negotiation Price" value={`$${property.average_negotiation_price?.toLocaleString() || '0.00'}`} />
-              </div>
-            </div>
-
-            {/* Virtual Tour */}
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4">Virtual Tour</h2>
-              <div className="relative h-[600px]">
-                <React360Viewer
-                  amount={allPhotos.length}
-                  imagePath="https://silver-umbrella-5gr55qpvqxjw249v6-8000.app.github.dev/images/"
-                  fileName="photo_{index}.jpg"
-                  autoplay
-                  loop
-                />
-              </div>
-            </div>
-
-            {/* Amenities */}
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold mb-4">Amenities</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {property.amenities.split(',').map((amenity, index) => (
-                  <div key={index} className="flex items-center gap-2 text-gray-600">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                      <FaShieldAlt className="text-blue-500" />
-                    </div>
-                    <span>{amenity.replace(/_/g, ' ')}</span>
-                  </div>
+              {/* Thumbnails */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {allPhotos.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImageIndex(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === activeImageIndex ? 'bg-white w-4' : 'bg-white/50'
+                    }`}
+                  />
                 ))}
               </div>
             </div>
 
+            {/* Description Section - Moved to top */}
+            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+              <h2 className="text-2xl font-bold mb-4">Description</h2>
+              <p className="text-gray-600 leading-relaxed">{property.description}</p>
+            </div>
+
+            {/* Property Details - Moved second */}
+            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+              <h2 className="text-2xl font-bold mb-6">Property Details</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <DetailCard icon={<FaBed />} label="Bedrooms" value={property.bed} />
+                <DetailCard icon={<FaBath />} label="Bathrooms" value={property.bath} />
+                <DetailCard icon={<FaRulerCombined />} label="Area" value={`${property.area} sq ft`} />
+                <DetailCard icon={<FaBuilding />} label="Floors" value={property.total_floors} />
+              </div>
+            </div>
+
+            {/* Property Information */}
+            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+              <h2 className="text-2xl font-bold mb-6">Property Information</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <DetailItem 
+                  icon={<FaTags className="text-blue-500" />} 
+                  label="Status" 
+                  value={property.status}
+                  className="bg-blue-50 p-4 rounded-xl"
+                />
+                <DetailItem 
+                  icon={<FaCalendarAlt className="text-green-500" />} 
+                  label="Year Built" 
+                  value={property.year_built}
+                  className="bg-green-50 p-4 rounded-xl"
+                />
+                <DetailItem 
+                  icon={<FaLayerGroup className="text-purple-500" />} 
+                  label="Floor" 
+                  value={property.floor_number}
+                  className="bg-purple-50 p-4 rounded-xl"
+                />
+                <DetailItem 
+                  icon={<FaCity className="text-orange-500" />} 
+                  label="District" 
+                  value={property.district}
+                  className="bg-orange-50 p-4 rounded-xl"
+                />
+              </div>
+            </div>
+
+            {/* Amenities Section - Moved last */}
+            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+              <h2 className="text-2xl font-bold mb-6">Amenities & Features</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {property.amenities.split(',').map((amenity, index) => {
+                  const cleanedAmenity = amenity.trim();
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:bg-blue-50 border border-gray-100"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        {getAmenityIcon(cleanedAmenity)}
+                      </div>
+                      <span className="text-gray-700 capitalize">
+                        {cleanedAmenity.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              {/* Price Card */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                {/* <div className="flex items-center justify-between mb-6">
+                  <span className="text-gray-600">Price</span>
+                  <span className="text-3xl font-bold text-blue-600">
+                    ${property.price.toLocaleString()}
+                  </span>
+                </div> */}
+                <div className="space-y-4">
+                  <button
+                    onClick={handleBookHouse}
+                    className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-600 transition-colors"
+                  >
+                    Book Immediately
+                  </button>
+                  <button
+                    onClick={() => setShowNegotiationForm(true)}
+                    className="w-full bg-white text-blue-500 border-2 border-blue-500 py-3 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                  >
+                    Make an Offer
+                  </button>
+                </div>
+              </div>
+
+              {/* Add Mortgage Calculator here, after the Price Card */}
+              <MortgageCalculator propertyPrice={property.price} />
+
+              {/* Negotiation Statistics Card */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                <h3 className="text-lg font-semibold mb-4">Negotiation Statistics</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Total Negotiations</span>
+                    <span className="text-xl font-bold text-blue-600">
+                      {property.negotiation_count}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Average Offer</span>
+                    <span className="text-xl font-bold text-green-600">
+                      ${property.average_negotiation_price?.toLocaleString() || 'N/A'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Negotiation Form */}
+              {showNegotiationForm && (
+                <div className="bg-white rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-xl font-bold mb-4">Make an Offer</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Your Offer
+                      </label>
+                      <input
+                        type="number"
+                        value={counterPrice || ''}
+                        onChange={(e) => setCounterPrice(Number(e.target.value))}
+                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                        placeholder="Enter amount"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Message
+                      </label>
+                      <textarea
+                        value={negotiationDescription}
+                        onChange={(e) => setNegotiationDescription(e.target.value)}
+                        className="w-full p-3 border border-gray-200 rounded-xl h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                        placeholder="Why should the seller accept your offer?"
+                      />
+                    </div>
+                    <button
+                      onClick={handleSubmitNegotiation}
+                      className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+                    >
+                      Submit Offer
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
+
+       
       </div>
     </div>
   );
 };
+
+const DetailCard = ({ icon, label, value }) => (
+  <div className="bg-gray-50 p-4 rounded-xl">
+    <div className="flex items-center gap-2 text-blue-500 mb-2">
+      {icon}
+      <span className="text-gray-600 text-sm">{label}</span>
+    </div>
+    <p className="text-xl font-semibold text-gray-900">{value}</p>
+  </div>
+);
 
 // Helper Components
 const InfoCard = ({ icon, label, value }) => (
@@ -309,13 +555,13 @@ const InfoCard = ({ icon, label, value }) => (
   </div>
 );
 
-const DetailItem = ({ icon, label, value }) => (
-  <div className="flex items-center gap-2">
-    <div className="text-gray-500">{icon}</div>
-    <div>
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="font-medium">{value}</p>
+const DetailItem = ({ icon, label, value, className = '' }) => (
+  <div className={`transition-all duration-300 hover:scale-105 ${className}`}>
+    <div className="flex items-center gap-3 mb-2">
+      {icon}
+      <p className="text-sm font-medium text-gray-600">{label}</p>
     </div>
+    <p className="text-xl font-semibold text-gray-900">{value}</p>
   </div>
 );
 
