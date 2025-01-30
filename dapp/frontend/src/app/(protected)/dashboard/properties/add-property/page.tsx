@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import Navbar from '../../Navbar';  // Add this import
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
@@ -278,155 +279,158 @@ const AddPropertyPage = () => {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
-            <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Basic Information */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input 
-                            type="text" 
-                            name="title" 
-                            placeholder="Title" 
-                            onChange={handleChange} 
-                            required 
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        <textarea 
-                            name="description" 
-                            placeholder="Description" 
-                            onChange={handleChange} 
-                            required 
-                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent md:col-span-2"
-                            rows={4}
-                        />
-                    </div>
-                </div>
-
-                {/* Location */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Location</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <select name="province" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
-                            <option value="">Select Province</option>
-                            {PROVINCE_CHOICES.map(choice => (
-                                <option key={choice.value} value={choice.value}>{choice.label}</option>
-                            ))}
-                        </select>
-                        <select name="district" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
-                            <option value="">Select District</option>
-                            {DISTRICT_CHOICES.map(choice => (
-                                <option key={choice.value} value={choice.value}>{choice.label}</option>
-                            ))}
-                        </select>
-                        <input 
-                            type="text" 
-                            name="city" 
-                            placeholder="City" 
-                            onChange={handleChange} 
-                            required 
-                            className="w-full p-2 border border-gray-300 rounded"
-                        />
-                    </div>
-                </div>
-
-                {/* Property Details */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Property Details</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="number" name="price" placeholder="Price" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
-                        <input type="number" name="bed" placeholder="Bedrooms" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
-                        <input type="number" name="bath" placeholder="Bathrooms" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
-                        <input type="number" name="area" placeholder="Area (sq ft)" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
-                        <input type="number" name="plot_number" placeholder="Plot Number" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
-                        <input type="number" name="year_built" placeholder="Year Built" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
-                        <select name="sale_or_rent" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
-                            {SALE_RENT_CHOICES.map(choice => (
-                                <option key={choice.value} value={choice.value}>{choice.label}</option>
-                            ))}
-                        </select>
-                        <select name="property_type" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
-                            {PROPERTY_TYPE_CHOICES.map(choice => (
-                                <option key={choice.value} value={choice.value}>{choice.label}</option>
-                            ))}
-                        </select>
-                        <select name="tags" onChange={handleSelectChange} className="w-full p-2 border border-gray-300 rounded">
-                            <option value="">Select Tags</option>
-                            {TAG_CHOICES.map(choice => (
-                                <option key={choice.value} value={choice.value}>{choice.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                {/* Amenities */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {AMENITIES_CHOICES.map(amenity => (
-                            <div key={amenity.value} className="flex items-center space-x-3">
-                                <input
-                                    type="checkbox"
-                                    id={`amenity-${amenity.value}`}
-                                    name="amenities"
-                                    value={amenity.value}
-                                    checked={formData.amenities.includes(amenity.value)}
-                                    onChange={handleAmenitiesChange}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <label
-                                    htmlFor={`amenity-${amenity.value}`}
-                                    className="text-sm font-medium text-gray-700"
-                                >
-                                    {amenity.label}
-                                </label>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Images & Documents */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Images & Documents</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Main Photo</label>
-                            <input type="file" name="photo_main" onChange={handleFileChange} required className="w-full" />
+        <>
+            <Navbar />
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
+                <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Basic Information */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input 
+                                type="text" 
+                                name="title" 
+                                placeholder="Title" 
+                                onChange={handleChange} 
+                                required 
+                                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            <textarea 
+                                name="description" 
+                                placeholder="Description" 
+                                onChange={handleChange} 
+                                required 
+                                className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent md:col-span-2"
+                                rows={4}
+                            />
                         </div>
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">Documents</label>
-                            <input type="file" name="documents" onChange={handleFileChange} className="w-full" />
+                    </div>
+
+                    {/* Location */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Location</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <select name="province" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                                <option value="">Select Province</option>
+                                {PROVINCE_CHOICES.map(choice => (
+                                    <option key={choice.value} value={choice.value}>{choice.label}</option>
+                                ))}
+                            </select>
+                            <select name="district" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                                <option value="">Select District</option>
+                                {DISTRICT_CHOICES.map(choice => (
+                                    <option key={choice.value} value={choice.value}>{choice.label}</option>
+                                ))}
+                            </select>
+                            <input 
+                                type="text" 
+                                name="city" 
+                                placeholder="City" 
+                                onChange={handleChange} 
+                                required 
+                                className="w-full p-2 border border-gray-300 rounded"
+                            />
                         </div>
-                        {[1, 2, 3, 4, 5].map(num => (
-                            <div key={num} className="space-y-2">
-                                <label className="block text-sm font-medium text-gray-700">Additional Photo {num}</label>
-                                <input type="file" name={`photo_${num}`} onChange={handleFileChange} className="w-full" />
+                    </div>
+
+                    {/* Property Details */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Property Details</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input type="number" name="price" placeholder="Price" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                            <input type="number" name="bed" placeholder="Bedrooms" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                            <input type="number" name="bath" placeholder="Bathrooms" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                            <input type="number" name="area" placeholder="Area (sq ft)" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                            <input type="number" name="plot_number" placeholder="Plot Number" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                            <input type="number" name="year_built" placeholder="Year Built" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                            <select name="sale_or_rent" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                                {SALE_RENT_CHOICES.map(choice => (
+                                    <option key={choice.value} value={choice.value}>{choice.label}</option>
+                                ))}
+                            </select>
+                            <select name="property_type" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                                {PROPERTY_TYPE_CHOICES.map(choice => (
+                                    <option key={choice.value} value={choice.value}>{choice.label}</option>
+                                ))}
+                            </select>
+                            <select name="tags" onChange={handleSelectChange} className="w-full p-2 border border-gray-300 rounded">
+                                <option value="">Select Tags</option>
+                                {TAG_CHOICES.map(choice => (
+                                    <option key={choice.value} value={choice.value}>{choice.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Amenities */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Amenities</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            {AMENITIES_CHOICES.map(amenity => (
+                                <div key={amenity.value} className="flex items-center space-x-3">
+                                    <input
+                                        type="checkbox"
+                                        id={`amenity-${amenity.value}`}
+                                        name="amenities"
+                                        value={amenity.value}
+                                        checked={formData.amenities.includes(amenity.value)}
+                                        onChange={handleAmenitiesChange}
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <label
+                                        htmlFor={`amenity-${amenity.value}`}
+                                        className="text-sm font-medium text-gray-700"
+                                    >
+                                        {amenity.label}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Images & Documents */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Images & Documents</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">Main Photo</label>
+                                <input type="file" name="photo_main" onChange={handleFileChange} required className="w-full" />
                             </div>
-                        ))}
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">Documents</label>
+                                <input type="file" name="documents" onChange={handleFileChange} className="w-full" />
+                            </div>
+                            {[1, 2, 3, 4, 5].map(num => (
+                                <div key={num} className="space-y-2">
+                                    <label className="block text-sm font-medium text-gray-700">Additional Photo {num}</label>
+                                    <input type="file" name={`photo_${num}`} onChange={handleFileChange} className="w-full" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
 
-                {/* Map */}
-                <div className="bg-white p-6 rounded-lg shadow">
-                    <h2 className="text-xl font-semibold mb-4">Location on Map</h2>
-                    <div className="rounded-lg overflow-hidden border border-gray-300">
-                        <MapContainer center={position} zoom={13} style={{ height: "400px", width: "100%" }}>
-                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                            <Marker position={position} />
-                            <MapClickHandler onClick={handleMapClick} />
-                        </MapContainer>
+                    {/* Map */}
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h2 className="text-xl font-semibold mb-4">Location on Map</h2>
+                        <div className="rounded-lg overflow-hidden border border-gray-300">
+                            <MapContainer center={position} zoom={13} style={{ height: "400px", width: "100%" }}>
+                                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                <Marker position={position} />
+                                <MapClickHandler onClick={handleMapClick} />
+                            </MapContainer>
+                        </div>
                     </div>
-                </div>
 
-                <button 
-                    type="submit" 
-                    className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                    Add Property
-                </button>
-            </form>
-        </div>
+                    <button 
+                        type="submit" 
+                        className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Add Property
+                    </button>
+                </form>
+            </div>
+        </>
     );
 };
 

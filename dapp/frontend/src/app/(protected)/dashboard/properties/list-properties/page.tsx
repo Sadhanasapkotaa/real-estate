@@ -4,6 +4,7 @@ import axios from 'axios';
 import Link from 'next/link';
 import { FaBed, FaBath, FaRulerCombined, FaBuilding, FaTag } from 'react-icons/fa';
 import withAuth from '../../../../hoc/withAuth';
+import Navbar from '../../Navbar';  // Add this import
 
 interface Property {
   id: number;
@@ -18,6 +19,7 @@ interface Property {
   sale_or_rent: string;
   photo_main: string;
   status: string; // Added status property
+  property_type: string;  // Add this line
   photo_1?: string;
   photo_2?: string;
   photo_3?: string;
@@ -52,34 +54,55 @@ const PropertiesPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Properties</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {properties.map((property, index) => (
-          <div key={property.id || index} className="bg-white shadow-lg rounded-lg overflow-hidden">
-            <img src={property.photo_main} alt={property.title} className="w-full h-56 object-cover" />
-            <div className="p-6">
-              <p className="text-gray-700 mb-2 flex items-center justify-between">
-                <span className={`inline-block px-3 py-1 rounded-full text-white ${property.sale_or_rent === 'sale' ? 'bg-orange-500' : 'bg-blue-500'}`}>
-                  {property.sale_or_rent === 'sale' ? 'For Sale' : 'For Rent'}
-                </span>
-                <span className="text-lg font-semibold"><FaTag className="inline-block mr-1" />${property.price}</span>
-              </p>
-              <h2 className="text-2xl font-bold mb-2">{property.title}</h2>
-              <p className="text-gray-700 mb-4">
-                <span><FaBed className="inline-block mr-1" />{property.bed}</span>
-                <span className="ml-4"><FaBath className="inline-block mr-1" />{property.bath}</span>
-                <span className="ml-4"><FaRulerCombined className="inline-block mr-1" />{property.area} sq ft</span>
-                <span className="ml-4"><FaBuilding className="inline-block mr-1" />{property.total_floors}</span>
-              </p>
-              <p className="text-gray-700 mb-4">{property.description.substring(0, 50)}... <Link href={`/dashboard/properties/list-properties/${property.id}`} legacyBehavior>
-                <a className="text-blue-500 hover:underline">See more</a>
-              </Link></p>
+    <>
+      <Navbar />
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-8 text-gray-800">Properties</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {properties.map((property, index) => (
+            <div key={property.id || index} className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
+              <div className="relative">
+                <img src={property.photo_main} alt={property.title} className="w-full h-64 object-cover" />
+                <div className="absolute top-4 left-4">
+                  <span className={`inline-block px-4 py-2 rounded-lg text-sm font-semibold text-white ${property.sale_or_rent === 'sale' ? 'bg-orange-500' : 'bg-blue-500'}`}>
+                    {property.sale_or_rent === 'sale' ? 'For Sale' : 'For Rent'}
+                  </span>
+                </div>
+                
+              </div>
+              <div className="p-6">
+                <div className="mb-4">
+                  <p className="text-2xl font-bold text-orange-600">${property.price.toLocaleString()}</p>
+                  <span className="text-sm text-gray-600">{property.property_type}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center text-gray-600">
+                    <FaBed className="text-lg mr-2 text-gray-500" />
+                    <span>{property.bed} Beds</span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <FaBath className="text-lg mr-2 text-gray-500" />
+                    <span>{property.bath} Baths</span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <FaRulerCombined className="text-lg mr-2 text-gray-500" />
+                    <span>{property.area} sq ft</span>
+                  </div>
+                  <div className="flex items-center text-gray-600">
+                    <FaBuilding className="text-lg mr-2 text-gray-500" />
+                    <span>{property.total_floors} Floors</span>
+                  </div>
+                </div>
+                <Link href={`/dashboard/properties/list-properties/${property.id}`} 
+                      className="inline-block w-full text-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-300">
+                  View Details
+                </Link>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

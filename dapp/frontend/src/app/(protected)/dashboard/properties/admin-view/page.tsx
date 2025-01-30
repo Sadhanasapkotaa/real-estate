@@ -4,7 +4,8 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Pie, Bar, Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement } from 'chart.js';
-import withAuth from '../../../../../hoc/withAuth';
+import withAuth from '../../../../hoc/withAuth';
+import Navbar from '../../Navbar';  // Add this import
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement);
 
@@ -272,53 +273,56 @@ const PropertiesPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Properties</h1>
-      {message && <div className="mb-4 text-green-500">{message}</div>}
-      {error && !error.id && <div className="mb-4 text-red-500">{error.message}</div>}
+    <>
+      <Navbar />
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Properties</h1>
+        {message && <div className="mb-4 text-green-500">{message}</div>}
+        {error && !error.id && <div className="mb-4 text-red-500">{error.message}</div>}
 
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-2">Property Status Distribution</h2>
-        <div className="flex justify-around">
-          <div className="w-1/2">
-            <Pie data={pieData} />
-          </div>
-          <div className="w-1/2">
-            <Bar data={barData} />
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-2">Property Status Distribution</h2>
+          <div className="flex justify-around">
+            <div className="w-1/2">
+              <Pie data={pieData} />
+            </div>
+            <div className="w-1/2">
+              <Bar data={barData} />
+            </div>
           </div>
         </div>
+
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-2">Price vs Area Distribution</h2>
+          <Scatter data={scatterData} />
+        </div>
+
+        <div className="mb-8">
+          <h2 className="text-xl font-bold mb-2">Listed Since Distribution</h2>
+          <Bar data={listedSinceBarData} />
+        </div>
+        
+        <h2 className="text-xl font-bold mb-2">Listed</h2>
+        <p className="mb-4">These are the properties that are currently available for sale or rent.</p>
+        {renderProperties(activeListings)}
+
+        <h2 className="text-xl font-bold mb-2">Booked</h2>
+        <p className="mb-4">These properties have been booked but not yet sold or rented.</p>
+        {renderProperties(activeBookings)}
+
+        <h2 className="text-xl font-bold mb-2">Active</h2>
+        <p className="mb-4">These properties have been sold or rented.</p>
+        {renderProperties(pastBookings)}
+
+        <h2 className="text-xl font-bold mb-2">Unapproved</h2>
+        <p className="mb-4">These properties are pending approval.</p>
+        {renderProperties(unapproved)}
+
+        <h2 className="text-xl font-bold mb-2">Off Market</h2>
+        <p className="mb-4">These properties are no longer on the market.</p>
+        {renderProperties(offMarket)}
       </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-2">Price vs Area Distribution</h2>
-        <Scatter data={scatterData} />
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-2">Listed Since Distribution</h2>
-        <Bar data={listedSinceBarData} />
-      </div>
-      
-      <h2 className="text-xl font-bold mb-2">Listed</h2>
-      <p className="mb-4">These are the properties that are currently available for sale or rent.</p>
-      {renderProperties(activeListings)}
-
-      <h2 className="text-xl font-bold mb-2">Booked</h2>
-      <p className="mb-4">These properties have been booked but not yet sold or rented.</p>
-      {renderProperties(activeBookings)}
-
-      <h2 className="text-xl font-bold mb-2">Active</h2>
-      <p className="mb-4">These properties have been sold or rented.</p>
-      {renderProperties(pastBookings)}
-
-      <h2 className="text-xl font-bold mb-2">Unapproved</h2>
-      <p className="mb-4">These properties are pending approval.</p>
-      {renderProperties(unapproved)}
-
-      <h2 className="text-xl font-bold mb-2">Off Market</h2>
-      <p className="mb-4">These properties are no longer on the market.</p>
-      {renderProperties(offMarket)}
-    </div>
+    </>
   );
 };  
 

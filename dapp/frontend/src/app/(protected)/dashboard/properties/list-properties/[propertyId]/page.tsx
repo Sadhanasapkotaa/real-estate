@@ -1,6 +1,6 @@
 "use client";
-
 import { useParams } from 'next/navigation';
+import Navbar from '../../../Navbar';  // Add this import
 
 declare global {
   interface Window {
@@ -57,11 +57,20 @@ const MortgageCalculator = ({ propertyPrice }: { propertyPrice: number }) => {
     const monthlyRate = (interestRate / 100) / 12;
     const numberOfPayments = loanTerm * 12;
     
-    const monthlyPayment = principal * 
-      (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
+    // Handle edge cases
+    if (principal <= 0 || numberOfPayments <= 0) return 0;
+    
+    // Special case when interest rate is 0
+    if (interestRate === 0) {
+      return principal / numberOfPayments;
+    }
+    
+    // Standard mortgage payment formula
+    const monthlyPayment = 
+      (principal * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) /
       (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
       
-    return isNaN(monthlyPayment) ? 0 : monthlyPayment;
+    return isFinite(monthlyPayment) ? monthlyPayment : 0;
   };
 
   const monthlyPayment = calculateMonthlyPayment();
@@ -300,237 +309,240 @@ const PropertyPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header Section with Property Type */}
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-bold text-gray-900">{property.title}</h1>
-              <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
-                {getPropertyTypeIcon(property.property_type)}
-                {property.property_type}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <FaMapMarkerAlt className="text-blue-500" />
-              <span className="text-lg">{`${property.city}, ${property.province}`}</span>
-            </div>
-          </div>
-          <div className="bg-white px-6 py-3 rounded-xl shadow-sm">
-            <p className="text-gray-500 text-sm mb-1">Price</p>
-            <p className="text-3xl font-bold text-blue-600">${property.price.toLocaleString()}</p>
-          </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2">
-            {/* Image Gallery */}
-            <div className="relative h-[600px] rounded-2xl overflow-hidden group">
-              <Image
-                src={allPhotos[activeImageIndex]}
-                alt={property.title}
-                layout="fill"
-                objectFit="cover"
-                className="transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-              
-              {/* Navigation Arrows */}
-              <button
-                onClick={() => setActiveImageIndex((prev) => (prev - 1 + allPhotos.length) % allPhotos.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"
-              >
-                <FaChevronLeft className="text-gray-800 text-xl" />
-              </button>
-              <button
-                onClick={() => setActiveImageIndex((prev) => (prev + 1) % allPhotos.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"
-              >
-                <FaChevronRight className="text-gray-800 text-xl" />
-              </button>
-
-              {/* Thumbnails */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {allPhotos.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveImageIndex(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === activeImageIndex ? 'bg-white w-4' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Header Section with Property Type */}
+          <div className="mb-8 flex items-start justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-4xl font-bold text-gray-900">{property.title}</h1>
+                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2">
+                  {getPropertyTypeIcon(property.property_type)}
+                  {property.property_type}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-gray-600">
+                <FaMapMarkerAlt className="text-blue-500" />
+                <span className="text-lg">{`${property.city}, ${property.province}`}</span>
               </div>
             </div>
-
-            {/* Description Section - Moved to top */}
-            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
-              <h2 className="text-2xl font-bold mb-4">Description</h2>
-              <p className="text-gray-600 leading-relaxed">{property.description}</p>
-            </div>
-
-            {/* Property Details - Moved second */}
-            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6">Property Details</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <DetailCard icon={<FaBed />} label="Bedrooms" value={property.bed} />
-                <DetailCard icon={<FaBath />} label="Bathrooms" value={property.bath} />
-                <DetailCard icon={<FaRulerCombined />} label="Area" value={`${property.area} sq ft`} />
-                <DetailCard icon={<FaBuilding />} label="Floors" value={property.total_floors} />
-              </div>
-            </div>
-
-            {/* Property Information */}
-            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6">Property Information</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <DetailItem 
-                  icon={<FaTags className="text-blue-500" />} 
-                  label="Status" 
-                  value={property.status}
-                  className="bg-blue-50 p-4 rounded-xl"
-                />
-                <DetailItem 
-                  icon={<FaCalendarAlt className="text-green-500" />} 
-                  label="Year Built" 
-                  value={property.year_built}
-                  className="bg-green-50 p-4 rounded-xl"
-                />
-                <DetailItem 
-                  icon={<FaLayerGroup className="text-purple-500" />} 
-                  label="Floor" 
-                  value={property.floor_number}
-                  className="bg-purple-50 p-4 rounded-xl"
-                />
-                <DetailItem 
-                  icon={<FaCity className="text-orange-500" />} 
-                  label="District" 
-                  value={property.district}
-                  className="bg-orange-50 p-4 rounded-xl"
-                />
-              </div>
-            </div>
-
-            {/* Amenities Section - Moved last */}
-            <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
-              <h2 className="text-2xl font-bold mb-6">Amenities & Features</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {property.amenities.split(',').map((amenity, index) => {
-                  const cleanedAmenity = amenity.trim();
-                  return (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:bg-blue-50 border border-gray-100"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                        {getAmenityIcon(cleanedAmenity)}
-                      </div>
-                      <span className="text-gray-700 capitalize">
-                        {cleanedAmenity.replace(/_/g, ' ')}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+            <div className="bg-white px-6 py-3 rounded-xl shadow-sm">
+              <p className="text-gray-500 text-sm mb-1">Price</p>
+              <p className="text-3xl font-bold text-blue-600">${property.price.toLocaleString()}</p>
             </div>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              {/* Price Card */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-                {/* <div className="flex items-center justify-between mb-6">
-                  <span className="text-gray-600">Price</span>
-                  <span className="text-3xl font-bold text-blue-600">
-                    ${property.price.toLocaleString()}
-                  </span>
-                </div> */}
-                <div className="space-y-4">
-                  <button
-                    onClick={handleBookHouse}
-                    className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-600 transition-colors"
-                  >
-                    Book Immediately
-                  </button>
-                  <button
-                    onClick={() => setShowNegotiationForm(true)}
-                    className="w-full bg-white text-blue-500 border-2 border-blue-500 py-3 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
-                  >
-                    Make an Offer
-                  </button>
-                </div>
-              </div>
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Left Column */}
+            <div className="lg:col-span-2">
+              {/* Image Gallery */}
+              <div className="relative h-[600px] rounded-2xl overflow-hidden group">
+                <Image
+                  src={allPhotos[activeImageIndex]}
+                  alt={property.title}
+                  layout="fill"
+                  objectFit="cover"
+                  className="transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                
+                {/* Navigation Arrows */}
+                <button
+                  onClick={() => setActiveImageIndex((prev) => (prev - 1 + allPhotos.length) % allPhotos.length)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"
+                >
+                  <FaChevronLeft className="text-gray-800 text-xl" />
+                </button>
+                <button
+                  onClick={() => setActiveImageIndex((prev) => (prev + 1) % allPhotos.length)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-lg hover:bg-white transition-all"
+                >
+                  <FaChevronRight className="text-gray-800 text-xl" />
+                </button>
 
-              {/* Add Mortgage Calculator here, after the Price Card */}
-              <MortgageCalculator propertyPrice={property.price} />
-
-              {/* Negotiation Statistics Card */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-                <h3 className="text-lg font-semibold mb-4">Negotiation Statistics</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Total Negotiations</span>
-                    <span className="text-xl font-bold text-blue-600">
-                      {property.negotiation_count}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Average Offer</span>
-                    <span className="text-xl font-bold text-green-600">
-                      ${property.average_negotiation_price?.toLocaleString() || 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Negotiation Form */}
-              {showNegotiationForm && (
-                <div className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="text-xl font-bold mb-4">Make an Offer</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Your Offer
-                      </label>
-                      <input
-                        type="number"
-                        value={counterPrice || ''}
-                        onChange={(e) => setCounterPrice(Number(e.target.value))}
-                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                        placeholder="Enter amount"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Message
-                      </label>
-                      <textarea
-                        value={negotiationDescription}
-                        onChange={(e) => setNegotiationDescription(e.target.value)}
-                        className="w-full p-3 border border-gray-200 rounded-xl h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                        placeholder="Why should the seller accept your offer?"
-                      />
-                    </div>
+                {/* Thumbnails */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {allPhotos.map((_, index) => (
                     <button
-                      onClick={handleSubmitNegotiation}
-                      className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+                      key={index}
+                      onClick={() => setActiveImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === activeImageIndex ? 'bg-white w-4' : 'bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Description Section - Moved to top */}
+              <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+                <h2 className="text-2xl font-bold mb-4">Description</h2>
+                <p className="text-gray-600 leading-relaxed">{property.description}</p>
+              </div>
+
+              {/* Property Details - Moved second */}
+              <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+                <h2 className="text-2xl font-bold mb-6">Property Details</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <DetailCard icon={<FaBed />} label="Bedrooms" value={property.bed} />
+                  <DetailCard icon={<FaBath />} label="Bathrooms" value={property.bath} />
+                  <DetailCard icon={<FaRulerCombined />} label="Area" value={`${property.area} sq ft`} />
+                  <DetailCard icon={<FaBuilding />} label="Floors" value={property.total_floors} />
+                </div>
+              </div>
+
+              {/* Property Information */}
+              <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+                <h2 className="text-2xl font-bold mb-6">Property Information</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <DetailItem 
+                    icon={<FaTags className="text-blue-500" />} 
+                    label="Status" 
+                    value={property.status}
+                    className="bg-blue-50 p-4 rounded-xl"
+                  />
+                  <DetailItem 
+                    icon={<FaCalendarAlt className="text-green-500" />} 
+                    label="Year Built" 
+                    value={property.year_built}
+                    className="bg-green-50 p-4 rounded-xl"
+                  />
+                  <DetailItem 
+                    icon={<FaLayerGroup className="text-purple-500" />} 
+                    label="Floor" 
+                    value={property.floor_number}
+                    className="bg-purple-50 p-4 rounded-xl"
+                  />
+                  <DetailItem 
+                    icon={<FaCity className="text-orange-500" />} 
+                    label="District" 
+                    value={property.district}
+                    className="bg-orange-50 p-4 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              {/* Amenities Section - Moved last */}
+              <div className="mt-8 bg-white rounded-2xl p-8 shadow-sm">
+                <h2 className="text-2xl font-bold mb-6">Amenities & Features</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {property.amenities.split(',').map((amenity, index) => {
+                    const cleanedAmenity = amenity.trim();
+                    return (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 p-4 rounded-xl transition-all duration-300 hover:bg-blue-50 border border-gray-100"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                          {getAmenityIcon(cleanedAmenity)}
+                        </div>
+                        <span className="text-gray-700 capitalize">
+                          {cleanedAmenity.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-8">
+                {/* Price Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                  {/* <div className="flex items-center justify-between mb-6">
+                    <span className="text-gray-600">Price</span>
+                    <span className="text-3xl font-bold text-blue-600">
+                      ${property.price.toLocaleString()}
+                    </span>
+                  </div> */}
+                  <div className="space-y-4">
+                    <button
+                      onClick={handleBookHouse}
+                      className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-600 transition-colors"
                     >
-                      Submit Offer
+                      Book Immediately
+                    </button>
+                    <button
+                      onClick={() => setShowNegotiationForm(true)}
+                      className="w-full bg-white text-blue-500 border-2 border-blue-500 py-3 px-6 rounded-xl font-semibold hover:bg-blue-50 transition-colors"
+                    >
+                      Make an Offer
                     </button>
                   </div>
                 </div>
-              )}
+
+                {/* Add Mortgage Calculator here, after the Price Card */}
+                <MortgageCalculator propertyPrice={property.price} />
+
+                {/* Negotiation Statistics Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+                  <h3 className="text-lg font-semibold mb-4">Negotiation Statistics</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Total Negotiations</span>
+                      <span className="text-xl font-bold text-blue-600">
+                        {property.negotiation_count}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-600">Average Offer</span>
+                      <span className="text-xl font-bold text-green-600">
+                        ${property.average_negotiation_price?.toLocaleString() || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Negotiation Form */}
+                {showNegotiationForm && (
+                  <div className="bg-white rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-xl font-bold mb-4">Make an Offer</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Your Offer
+                        </label>
+                        <input
+                          type="number"
+                          value={counterPrice || ''}
+                          onChange={(e) => setCounterPrice(Number(e.target.value))}
+                          className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                          placeholder="Enter amount"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Message
+                        </label>
+                        <textarea
+                          value={negotiationDescription}
+                          onChange={(e) => setNegotiationDescription(e.target.value)}
+                          className="w-full p-3 border border-gray-200 rounded-xl h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                          placeholder="Why should the seller accept your offer?"
+                        />
+                      </div>
+                      <button
+                        onClick={handleSubmitNegotiation}
+                        className="w-full bg-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+                      >
+                        Submit Offer
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-       
+        
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
