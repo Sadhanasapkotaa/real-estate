@@ -39,7 +39,7 @@ interface Property {
   photo_4?: string;
   photo_5?: string;
   documents?: string;
-  amenities: string[];
+  amenities: string; // Changed from string[] to string
   negotiation_count: number;
   average_negotiation_price: number;
   owner: string;
@@ -280,16 +280,17 @@ const PropertyPage = () => {
             <div className="mt-8">
               <h2 className="text-2xl font-bold mb-4">Amenities</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {property.amenities.map((amenity, index) => (
+                {property.amenities.split(',').map((amenity, index) => (
                   <div key={index} className="flex items-center gap-2 text-gray-600">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
                       <FaShieldAlt className="text-blue-500" />
                     </div>
-                    <span>{amenity}</span>
+                    <span>{amenity.replace(/_/g, ' ')}</span>
                   </div>
                 ))}
               </div>
             </div>
+
           </div>
         </div>
       </div>

@@ -29,6 +29,16 @@ const AMENITIES_CHOICES = [
     { value: 'garage', label: 'Garage' },
     { value: 'pool', label: 'Pool' },
     { value: 'fireplace', label: 'Fireplace' },
+    { value: 'garden', label: 'Garden' },
+    { value: 'security', label: 'Security System' },
+    { value: 'air_conditioning', label: 'Air Conditioning' },
+    { value: 'heating', label: 'Central Heating' },
+    { value: 'laundry', label: 'Laundry Room' },
+    { value: 'gym', label: 'Gym' },
+    { value: 'wifi', label: 'WiFi' },
+    { value: 'parking', label: 'Parking' },
+    { value: 'balcony', label: 'Balcony' },
+    { value: 'elevator', label: 'Elevator' },
 ];
 
 const TAG_CHOICES = [
@@ -158,8 +168,6 @@ const AddPropertyPage = () => {
         owner: 1
     });
 
-
-
     const [position, setPosition] = useState([27.70898, 85.32513]);
 
     const handleMapClick = (e) => {
@@ -192,6 +200,16 @@ const AddPropertyPage = () => {
             ...formData,
             [name]: files[0]
         });
+    };
+
+    const handleAmenitiesChange = (e) => {
+        const { value, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            amenities: checked 
+                ? [...prev.amenities, value]
+                : prev.amenities.filter(item => item !== value)
+        }));
     };
 
     const validateFormData = () => {
@@ -233,6 +251,9 @@ const AddPropertyPage = () => {
         if (formData.photo_4) formDataToSend.append('photo_4', formData.photo_4);
         if (formData.photo_5) formDataToSend.append('photo_5', formData.photo_5);
 
+        // Convert amenities array to string before sending
+        formDataToSend.append('amenities', formData.amenities.join(','));
+
         try {
             const token = localStorage.getItem('access');
             if (!token) {
@@ -257,64 +278,153 @@ const AddPropertyPage = () => {
     };
 
     return (
-        <div>
-            <h1>Add New Property</h1>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="title" placeholder="Title" onChange={handleChange} required />
-                <textarea name="description" placeholder="Description" onChange={handleChange} required></textarea>
-                <select name="province" onChange={handleChange} required>
-                    {PROVINCE_CHOICES.map(choice => (
-                        <option key={choice.value} value={choice.value}>{choice.label}</option>
-                    ))}
-                </select>
-                <select name="district" onChange={handleChange} required>
-                    {DISTRICT_CHOICES.map(choice => (
-                        <option key={choice.value} value={choice.value}>{choice.label}</option>
-                    ))}
-                </select>
-                <input type="text" name="city" placeholder="City" onChange={handleChange} required />
-                <input type="number" name="price" placeholder="Price" onChange={handleChange} required />
-                <input type="number" name="bed" placeholder="Bedrooms" onChange={handleChange} required />
-                <input type="number" name="bath" placeholder="Bathrooms" onChange={handleChange} required />
-                <input type="number" name="area" placeholder="Area (sq ft)" onChange={handleChange} required />
-                <input type="number" name="plot_number" placeholder="Plot Number" onChange={handleChange} required />
-                <input type="number" name="year_built" placeholder="Year Built" onChange={handleChange} required />
-                <input type="number" name="total_floors" placeholder="Total Floors" onChange={handleChange} />
-                <input type="number" name="floor_number" placeholder="Floor Number" onChange={handleChange} />
-                <select name="sale_or_rent" onChange={handleChange} required>
-                    {SALE_RENT_CHOICES.map(choice => (
-                        <option key={choice.value} value={choice.value}>{choice.label}</option>
-                    ))}
-                </select>
-                <select name="property_type" onChange={handleChange} required>
-                    {PROPERTY_TYPE_CHOICES.map(choice => (
-                        <option key={choice.value} value={choice.value}>{choice.label}</option>
-                    ))}
-                </select>
-                <select name="tags" onChange={handleSelectChange}>
-                    {TAG_CHOICES.map(choice => (
-                        <option key={choice.value} value={choice.value}>{choice.label}</option>
-                    ))}
-                </select>
-                <input type="file" name="documents" onChange={handleFileChange} />
-                <input type="file" name="photo_main" onChange={handleFileChange} required />
-                <input type="file" name="photo_1" onChange={handleFileChange} />
-                <input type="file" name="photo_2" onChange={handleFileChange} />
-                <input type="file" name="photo_3" onChange={handleFileChange} />
-                <input type="file" name="photo_4" onChange={handleFileChange} />
-                <input type="file" name="photo_5" onChange={handleFileChange} />
-                <input type="number" name="negotiation_count" placeholder="Negotiation Count" onChange={handleChange} />
-                <input type="text" name="average_negotiation_price" placeholder="Average Negotiation Price" onChange={handleChange} />
-                <input type="number" name="realtor" placeholder="Realtor ID" onChange={handleChange} required />
-                <input type="number" name="owner" placeholder="Owner ID" onChange={handleChange} required />
-                <MapContainer center={position} zoom={13} style={{ height: "400px", width: "100%" }}>
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <Marker position={position} />
-                    <MapClickHandler onClick={handleMapClick} />
-                </MapContainer>
-                <button type="submit">Add Property</button>
+        <div className="max-w-7xl mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-8">Add New Property</h1>
+            <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Basic Information */}
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input 
+                            type="text" 
+                            name="title" 
+                            placeholder="Title" 
+                            onChange={handleChange} 
+                            required 
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <textarea 
+                            name="description" 
+                            placeholder="Description" 
+                            onChange={handleChange} 
+                            required 
+                            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent md:col-span-2"
+                            rows={4}
+                        />
+                    </div>
+                </div>
+
+                {/* Location */}
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Location</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <select name="province" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                            <option value="">Select Province</option>
+                            {PROVINCE_CHOICES.map(choice => (
+                                <option key={choice.value} value={choice.value}>{choice.label}</option>
+                            ))}
+                        </select>
+                        <select name="district" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                            <option value="">Select District</option>
+                            {DISTRICT_CHOICES.map(choice => (
+                                <option key={choice.value} value={choice.value}>{choice.label}</option>
+                            ))}
+                        </select>
+                        <input 
+                            type="text" 
+                            name="city" 
+                            placeholder="City" 
+                            onChange={handleChange} 
+                            required 
+                            className="w-full p-2 border border-gray-300 rounded"
+                        />
+                    </div>
+                </div>
+
+                {/* Property Details */}
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Property Details</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="number" name="price" placeholder="Price" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                        <input type="number" name="bed" placeholder="Bedrooms" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                        <input type="number" name="bath" placeholder="Bathrooms" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                        <input type="number" name="area" placeholder="Area (sq ft)" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                        <input type="number" name="plot_number" placeholder="Plot Number" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                        <input type="number" name="year_built" placeholder="Year Built" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded" />
+                        <select name="sale_or_rent" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                            {SALE_RENT_CHOICES.map(choice => (
+                                <option key={choice.value} value={choice.value}>{choice.label}</option>
+                            ))}
+                        </select>
+                        <select name="property_type" onChange={handleChange} required className="w-full p-2 border border-gray-300 rounded">
+                            {PROPERTY_TYPE_CHOICES.map(choice => (
+                                <option key={choice.value} value={choice.value}>{choice.label}</option>
+                            ))}
+                        </select>
+                        <select name="tags" onChange={handleSelectChange} className="w-full p-2 border border-gray-300 rounded">
+                            <option value="">Select Tags</option>
+                            {TAG_CHOICES.map(choice => (
+                                <option key={choice.value} value={choice.value}>{choice.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Amenities */}
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {AMENITIES_CHOICES.map(amenity => (
+                            <div key={amenity.value} className="flex items-center space-x-3">
+                                <input
+                                    type="checkbox"
+                                    id={`amenity-${amenity.value}`}
+                                    name="amenities"
+                                    value={amenity.value}
+                                    checked={formData.amenities.includes(amenity.value)}
+                                    onChange={handleAmenitiesChange}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                />
+                                <label
+                                    htmlFor={`amenity-${amenity.value}`}
+                                    className="text-sm font-medium text-gray-700"
+                                >
+                                    {amenity.label}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Images & Documents */}
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Images & Documents</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Main Photo</label>
+                            <input type="file" name="photo_main" onChange={handleFileChange} required className="w-full" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Documents</label>
+                            <input type="file" name="documents" onChange={handleFileChange} className="w-full" />
+                        </div>
+                        {[1, 2, 3, 4, 5].map(num => (
+                            <div key={num} className="space-y-2">
+                                <label className="block text-sm font-medium text-gray-700">Additional Photo {num}</label>
+                                <input type="file" name={`photo_${num}`} onChange={handleFileChange} className="w-full" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Map */}
+                <div className="bg-white p-6 rounded-lg shadow">
+                    <h2 className="text-xl font-semibold mb-4">Location on Map</h2>
+                    <div className="rounded-lg overflow-hidden border border-gray-300">
+                        <MapContainer center={position} zoom={13} style={{ height: "400px", width: "100%" }}>
+                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                            <Marker position={position} />
+                            <MapClickHandler onClick={handleMapClick} />
+                        </MapContainer>
+                    </div>
+                </div>
+
+                <button 
+                    type="submit" 
+                    className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                    Add Property
+                </button>
             </form>
         </div>
     );
