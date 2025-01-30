@@ -53,7 +53,6 @@ class Property(models.Model):
     def __str__(self):
         return str(self.title)
     
-
 class Realtor(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="User")
     photo = models.ImageField(upload_to='realtors/%Y/%m/%d/', blank=True, verbose_name="Photo")
